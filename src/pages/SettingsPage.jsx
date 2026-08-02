@@ -120,25 +120,28 @@ export default function SettingsPage() {
       <Section title="ظاهر و رنگ تم" icon="🎨">
         <Row label="حالت تاریک / روشن" desc="تغییر تم دیداری برنامه">
           <button onClick={settings.toggleTheme}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 10, border: '1px solid #2f2258', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit', color: '#94a3b8', fontSize: '0.85rem', fontWeight: 600 }}>
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 10, border: '1px solid #2f2258', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit', color: isDark ? '#94a3b8' : '#4c4469', fontSize: '0.85rem', fontWeight: 600 }}>
             {settings.theme === 'dark' ? <><Sun size={15} /> حالت روشن</> : <><Moon size={15} /> حالت تاریک</>}
           </button>
         </Row>
 
         <div>
-          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', marginBottom: 8 }}>رنگ اصلی (Accent Color)</label>
+          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: isDark ? '#e2e8f0' : '#1e1b4b', marginBottom: 8 }}>رنگ اصلی تم (Accent Theme)</label>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             {ACCENT_COLORS.map((c) => {
               const isSel = (settings.accentColor || 'violet') === c.id;
               return (
                 <button key={c.id} onClick={() => settings.setAccentColor(c.id)}
                   style={{
-                    display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 10,
-                    border: `2px solid ${isSel ? c.color : 'transparent'}`,
-                    background: isSel ? 'rgba(139,92,246,0.15)' : 'rgba(15,10,30,0.4)',
-                    cursor: 'pointer', fontFamily: 'inherit', color: '#e2e8f0', fontSize: '0.8rem', fontWeight: 600,
+                    display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 10,
+                    border: `2px solid ${isSel ? c.color : (isDark ? 'transparent' : 'rgba(109,40,217,0.15)')}`,
+                    background: isSel ? (isDark ? 'rgba(139,92,246,0.25)' : '#ffffff') : (isDark ? 'rgba(15,10,30,0.4)' : '#ffffff'),
+                    boxShadow: isSel ? `0 2px 10px ${c.color}50` : 'none',
+                    cursor: 'pointer', fontFamily: 'inherit',
+                    color: isDark ? '#e2e8f0' : '#1e1b4b',
+                    fontSize: '0.85rem', fontWeight: 700,
                   }}>
-                  <span style={{ width: 14, height: 14, borderRadius: '50%', background: c.color }} />
+                  <span style={{ width: 14, height: 14, borderRadius: '50%', background: c.color, flexShrink: 0 }} />
                   {c.label}
                 </button>
               );

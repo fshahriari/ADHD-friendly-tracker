@@ -151,29 +151,49 @@ body {
 }
 
 /* ── Accent Color Palettes ───────────────────────────────────────────── */
+[data-accent="violet"] {
+  --color-primary-400: #a78bfa;
+  --color-primary-500: #8b5cf6;
+  --color-primary-600: #7c3aed;
+  --color-primary-700: #6d28d9;
+  --color-primary-800: #5b21b6;
+  --accent-glow-rgb: 139, 92, 246;
+}
+
 [data-accent="emerald"] {
+  --color-primary-400: #34d399;
   --color-primary-500: #10b981;
   --color-primary-600: #059669;
   --color-primary-700: #047857;
-  --color-primary-400: #34d399;
+  --color-primary-800: #065f46;
+  --accent-glow-rgb: 16, 185, 129;
 }
+
 [data-accent="cyan"] {
+  --color-primary-400: #38bdf8;
   --color-primary-500: #0ea5e9;
   --color-primary-600: #0284c7;
   --color-primary-700: #0369a1;
-  --color-primary-400: #38bdf8;
+  --color-primary-800: #075985;
+  --accent-glow-rgb: 14, 165, 233;
 }
+
 [data-accent="rose"] {
+  --color-primary-400: #fb7185;
   --color-primary-500: #f43f5e;
   --color-primary-600: #e11d48;
   --color-primary-700: #be123c;
-  --color-primary-400: #fb7185;
+  --color-primary-800: #9f1239;
+  --accent-glow-rgb: 244, 63, 94;
 }
+
 [data-accent="amber"] {
+  --color-primary-400: #fbbf24;
   --color-primary-500: #f59e0b;
   --color-primary-600: #d97706;
   --color-primary-700: #b45309;
-  --color-primary-400: #fbbf24;
+  --color-primary-800: #92400e;
+  --accent-glow-rgb: 245, 158, 11;
 }
 
 /* ── Light Mode: Sidebar ─────────────────────────────────────────────── */
@@ -215,9 +235,9 @@ body {
   color: #4c4469 !important;
 }
 [data-theme="light"] .date-toggle-btn.active {
-  background: #6d28d9 !important;
+  background: var(--color-primary-600) !important;
   color: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(109, 40, 217, 0.25);
+  box-shadow: 0 2px 8px rgba(var(--accent-glow-rgb, 109, 40, 217), 0.35);
 }
 
 /* ── Light Mode: Inputs ──────────────────────────────────────────────── */
@@ -389,11 +409,11 @@ body {
 .btn-primary {
   background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
   color: white;
-  box-shadow: 0 4px 15px rgba(109, 40, 217, 0.35);
+  box-shadow: 0 4px 15px rgba(var(--accent-glow-rgb, 109, 40, 217), 0.35);
 }
 .btn-primary:hover:not(:disabled) {
   background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-600));
-  box-shadow: 0 6px 20px rgba(109, 40, 217, 0.5);
+  box-shadow: 0 6px 20px rgba(var(--accent-glow-rgb, 109, 40, 217), 0.5);
   transform: translateY(-1px);
 }
 
