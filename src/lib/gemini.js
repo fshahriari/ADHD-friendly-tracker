@@ -11,11 +11,22 @@ export async function callGemini(userPrompt, systemPrompt, options = {}) {
   const settings = settingsDb.get();
   const primaryProxy = settings.geminiProxyUrl || DEFAULT_PROXY_URL;
   const backupProxy  = settings.backupGeminiProxyUrl || '';
-  const directApiKey = settings.directGeminiApiKey || '';
+  const directApiKey = settings.directGeminiApiKey || import.meta.env.VITE_GEMINI_API_KEY || '';
 
   const errors = [];
 
-  // 1. Try Primary Proxy
+  const aiProvider   = settings.aiProvider || 'gemini';
+
+  // 0. OpenAI Compatible Fallback
+  if (aiProvider === 'openai') {
+    try {
+      return await callOpenAIApi(primaryProxy, directApiKey, userPrompt, systemPrompt, options);
+    } catch (err) {
+      throw new Error(`خطا در ارتباط با سرور OpenAI: ${err.message}`);
+    }
+  }
+
+  // 1. Try Primary Proxy (Gemini)
   if (primaryProxy) {
     try {
       return await callWorkerProxy(primaryProxy, userPrompt, systemPrompt, options);
@@ -99,6 +110,38 @@ async function callDirectGeminiApi(apiKey, userPrompt, systemPrompt, options) {
 
   const data = await response.json();
   return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+async function callOpenAIApi(baseUrl, apiKey, userPrompt, systemPrompt, options) {
+  const cleanUrl = baseUrl.replace(/\/+$/, '');
+  const endpoint = cleanUrl.endsWith('/v1/chat/completions') ? cleanUrl : `${cleanUrl}/v1/chat/completions`;
+  
+  const messages = [];
+  if (systemPrompt) messages.push({ role: 'system', content: systemPrompt });
+  messages.push({ role: 'user', content: userPrompt });
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(apiKey && { 'Authorization': `Bearer ${apiKey}` })
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini', // Most common fallback model, or can be dynamic
+      messages,
+      temperature: options.temperature ?? 0.7,
+      max_tokens: options.maxTokens ?? 2048,
+    }),
+    signal: AbortSignal.timeout(25_000),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => 'خطای ناشناخته OpenAI');
+    throw new Error(`${response.status} — ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content || '';
 }
 
 // ── ADHD Coach Agent System Prompt ────────────────────────────────────────

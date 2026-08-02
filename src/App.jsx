@@ -22,12 +22,18 @@ function CalendarPage() {
   return <div className="page"><CalendarView /></div>;
 }
 
+import AuthPage from './pages/AuthPage';
+import { useAuthStore } from './store/useAuthStore';
+
 export default function App() {
   const { load, theme, accentColor } = useSettingsStore();
   const { loadTasks, tasks } = useTaskStore();
   const { loadEvents, events } = useEventStore();
+  const { user } = useAuthStore();
 
   useEffect(() => {
+    if (!user) return; // Don't load data if not logged in
+
     load();
     loadTasks();
     loadEvents();
@@ -57,7 +63,7 @@ export default function App() {
     }
 
     return () => reminderService.stop();
-  }, []);
+  }, [user]);
 
   // Synchronize document theme and accent color
   useEffect(() => {
@@ -68,15 +74,19 @@ export default function App() {
   return (
     <BrowserRouter>
       <ToastContainer />
-      <AppShell>
-        <Routes>
-          <Route path="/"           element={<Dashboard />} />
-          <Route path="/brain-dump" element={<BrainDumpPage />} />
-          <Route path="/focus"      element={<FocusPage />} />
-          <Route path="/calendar"   element={<CalendarPage />} />
-          <Route path="/settings"   element={<SettingsPage />} />
-        </Routes>
-      </AppShell>
+      {!user ? (
+        <AuthPage />
+      ) : (
+        <AppShell>
+          <Routes>
+            <Route path="/"           element={<Dashboard />} />
+            <Route path="/brain-dump" element={<BrainDumpPage />} />
+            <Route path="/focus"      element={<FocusPage />} />
+            <Route path="/calendar"   element={<CalendarPage />} />
+            <Route path="/settings"   element={<SettingsPage />} />
+          </Routes>
+        </AppShell>
+      )}
     </BrowserRouter>
   );
 }

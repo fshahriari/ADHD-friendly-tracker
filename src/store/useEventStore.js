@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { eventsDb, coachRulesDb } from '../lib/db';
-import { getSupabaseClient } from '../lib/supabase';
+import { pbEvents } from '../lib/api';
+import pb from '../lib/pb';
 
 export const useEventStore = create((set, get) => ({
   events: [],
@@ -12,16 +13,16 @@ export const useEventStore = create((set, get) => ({
     let local = eventsDb.getAll();
     let rules = coachRulesDb.getAll();
 
-    const supabase = getSupabaseClient();
-    if (supabase) {
+    const user = pb.authStore.model;
+    if (user) {
       try {
-        const { data: remoteEvents } = await supabase.from('events').select('*');
+        const remoteEvents = await pbEvents.getAll(user.id);
         if (remoteEvents) {
           local = remoteEvents;
           eventsDb.saveAll(local);
         }
       } catch (err) {
-        console.warn('[useEventStore] Supabase load fallback to LocalStorage');
+        console.warn('Failed to fetch events from PocketBase', err);
       }
     }
 

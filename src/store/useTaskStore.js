@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { taskDb } from '../lib/db';
-import { supabaseTasks } from '../lib/supabase';
+import { pbTasks } from '../lib/api';
 import { playAdd, playComplete } from '../lib/audio';
 
 const CATEGORIES = ['exam', 'assignment', 'habit', 'personal', 'lecture'];
@@ -49,8 +49,8 @@ export const useTaskStore = create((set, get) => ({
       const settings = JSON.parse(localStorage.getItem('adhd_settings') || '{}');
       if (settings.soundEnabled !== false) playAdd();
     }
-    // Sync to Supabase if online
-    supabaseTasks.upsert(task).catch(() => {});
+    // Sync to backend if online
+    pbTasks.upsert(task).catch(() => {});
     return task;
   },
 
@@ -59,10 +59,10 @@ export const useTaskStore = create((set, get) => ({
       const tasks = s.tasks.map((t) =>
         t.id === id ? { ...t, ...data, updatedAt: new Date().toISOString() } : t
       );
-      const updated = tasks.find((t) => t.id === id);
-      if (updated) {
-        taskDb.save(updated);
-        supabaseTasks.upsert(updated).catch(() => {});
+      const updatedTask = tasks.find((t) => t.id === id);
+      if (updatedTask) {
+        taskDb.save(updatedTask);
+        pbTasks.upsert(updatedTask).catch(() => {});
       }
       return { tasks };
     });
@@ -70,7 +70,7 @@ export const useTaskStore = create((set, get) => ({
 
   deleteTask: (id) => {
     taskDb.delete(id);
-    supabaseTasks.delete(id).catch(() => {});
+    pbTasks.delete(id).catch(() => {});
     set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) }));
   },
 
@@ -98,7 +98,8 @@ export const useTaskStore = create((set, get) => ({
       // Reassign order values
       const reordered = tasks.map((t, i) => ({ ...t, order: i }));
       taskDb.reorder(reordered.map((t) => t.id));
-      supabaseTasks.reorder(reordered.map((t) => ({ id: t.id, order: t.order }))).catch(() => {});
+      const updates = reordered.map((t) => ({ id: t.id, order: t.order }));
+      pbTasks.reorder(updates).catch(() => {});
       return { tasks: reordered };
     });
   },

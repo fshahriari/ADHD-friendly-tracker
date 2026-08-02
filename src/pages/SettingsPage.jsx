@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useEventStore } from '../store/useEventStore';
-import { resetSupabaseClient } from '../lib/supabase';
+
 import { Button, toast } from '../components/shared';
 import { timerLogDb } from '../lib/db';
 import { callGemini } from '../lib/gemini';
@@ -57,15 +57,21 @@ const ACCENT_COLORS = [
   { id: 'amber', label: 'کهربایی آرام', color: '#f59e0b' },
 ];
 
+import { useAuthStore } from '../store/useAuthStore';
+import { LogOut } from 'lucide-react';
+
 export default function SettingsPage() {
   const settings = useSettingsStore();
   const { coachRules, addCoachRule, deleteCoachRule } = useEventStore();
+  const { user, isAdmin, logout } = useAuthStore();
 
   const [supaUrl, setSupaUrl]       = useState(settings.supabaseUrl || '');
   const [supaKey, setSupaKey]       = useState(settings.supabaseAnonKey || '');
   const [proxyUrl, setProxyUrl]     = useState(settings.geminiProxyUrl || '');
   const [backupUrl, setBackupUrl]   = useState(settings.backupGeminiProxyUrl || '');
   const [directKey, setDirectKey]   = useState(settings.directGeminiApiKey || '');
+  const [aiProvider, setAiProvider] = useState(settings.aiProvider || 'gemini');
+  const [useCustomKeys, setUseCustomKeys] = useState(settings.useCustomKeys || false);
 
   const [focus, setFocus]           = useState(settings.focusDuration || 25);
   const [shortBreak, setShortBreak] = useState(settings.shortBreak || 5);
@@ -81,11 +87,12 @@ export default function SettingsPage() {
       geminiProxyUrl: proxyUrl,
       backupGeminiProxyUrl: backupUrl,
       directGeminiApiKey: directKey,
+      aiProvider,
+      useCustomKeys,
       focusDuration: focus,
       shortBreak,
       longBreak,
     });
-    resetSupabaseClient();
     toast('تنظیمات ذخیره شد ✅');
   };
 
@@ -115,9 +122,14 @@ export default function SettingsPage() {
 
   return (
     <div className="page">
-      <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 8 }}>
-        ⚙️ تنظیمات
-      </h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          ⚙️ تنظیمات
+        </h1>
+        <Button variant="ghost" size="sm" onClick={logout} style={{ color: '#ef4444' }}>
+          <LogOut size={16} /> خروج از حساب
+        </Button>
+      </div>
 
       {/* Appearance & Theme Accent */}
       <Section title="ظاهر و رنگ تم" icon="🎨">
@@ -200,33 +212,61 @@ export default function SettingsPage() {
         </form>
       </Section>
 
-      {/* Multi-Proxy & AI Resilience (Iran Context) */}
-      <Section title="تنظیمات هوش مصنوعی (پروکسی و کلید)" icon="🤖">
-        <div style={{ padding: '10px 14px', background: 'rgba(14,165,233,0.08)', borderRadius: 10, border: '1px solid rgba(14,165,233,0.2)' }}>
+      {/* Multi-Proxy & AI Resilience */}
+      <Section title="تنظیمات هوش مصنوعی" icon="🤖">
+        <div style={{ padding: '10px 14px', background: 'rgba(14,165,233,0.08)', borderRadius: 10, border: '1px solid rgba(14,165,233,0.2)', marginBottom: 12 }}>
           <p style={{ margin: 0, fontSize: '0.8rem', color: isDark ? '#7dd3fc' : '#0369a1', lineHeight: 1.6 }}>
-            برای مواجهه با قطعی‌های اینترنت و محدودیت‌ها، می‌توانید سرور اصلی، سرور پشتیبان، یا کلید مستقیم Gemini API قرار دهید. سیستم به طور خودکار در صورت قطعی سوئچ می‌کند.
+            انتخاب ارائه‌دهنده و کلیدهای هوش مصنوعی. در صورت استفاده از کلیدهای دیفالت سیستم، هیچ نیازی به تنظیم این بخش نیست.
           </p>
         </div>
 
-        <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>آدرس پروکسی اصلی (Cloudflare Worker)</label>
-          <input className="input" placeholder="https://my-worker.workers.dev" dir="ltr"
-            value={proxyUrl} onChange={(e) => setProxyUrl(e.target.value)} onBlur={save} />
-        </div>
+        {!isAdmin && (
+          <Row label="استفاده از کلید شخصی" desc="اگر می‌خواهید از کلید API اختصاصی خودتان استفاده کنید، این گزینه را روشن کنید">
+            <input type="checkbox" checked={useCustomKeys} onChange={(e) => {
+              setUseCustomKeys(e.target.checked);
+              settings.update({ useCustomKeys: e.target.checked });
+            }} />
+          </Row>
+        )}
 
-        <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>آدرس پروکسی پشتیبان (آدرس دوم / سرور رزرو)</label>
-          <input className="input" placeholder="https://backup-worker.workers.dev" dir="ltr"
-            value={backupUrl} onChange={(e) => setBackupUrl(e.target.value)} onBlur={save} />
-        </div>
+        {(isAdmin || useCustomKeys) && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 12 }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>نوع API</label>
+              <select className="input" value={aiProvider} onChange={(e) => {
+                setAiProvider(e.target.value);
+                settings.update({ aiProvider: e.target.value });
+              }} style={{ width: '100%' }}>
+                <option value="gemini">Gemini (پروکسی Cloudflare)</option>
+                <option value="openai">OpenAI Compatible (سرویس‌های واسط ایرانی)</option>
+              </select>
+            </div>
 
-        <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>کلید مستقیم Gemini API (در صورت اتصال مستقیم بدون VPN)</label>
-          <input className="input" placeholder="AIzaSy..." dir="ltr" type="password"
-            value={directKey} onChange={(e) => setDirectKey(e.target.value)} onBlur={save} />
-        </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>
+                {aiProvider === 'openai' ? 'آدرس Base URL سرویس واسط' : 'آدرس پروکسی اصلی (Cloudflare Worker)'}
+              </label>
+              <input className="input" placeholder="https://..." dir="ltr"
+                value={proxyUrl} onChange={(e) => setProxyUrl(e.target.value)} onBlur={save} />
+            </div>
 
-        <Button variant="ghost" size="sm" onClick={handleTestAi} disabled={testingAi} style={{ width: 'fit-content' }}>
+            {aiProvider === 'gemini' && (
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>آدرس پروکسی پشتیبان</label>
+                <input className="input" placeholder="https://..." dir="ltr"
+                  value={backupUrl} onChange={(e) => setBackupUrl(e.target.value)} onBlur={save} />
+              </div>
+            )}
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>کلید API (API Key)</label>
+              <input className="input" placeholder="sk-..." dir="ltr" type="password"
+                value={directKey} onChange={(e) => setDirectKey(e.target.value)} onBlur={save} />
+            </div>
+          </div>
+        )}
+
+        <Button variant="ghost" size="sm" onClick={handleTestAi} disabled={testingAi} style={{ width: 'fit-content', marginTop: 12 }}>
           {testingAi ? '⏳ در حال تست اتصال...' : <><CheckCircle2 size={14} /> تست اتصال هوش مصنوعی</>}
         </Button>
       </Section>
@@ -247,19 +287,21 @@ export default function SettingsPage() {
         ))}
       </Section>
 
-      {/* Supabase Config */}
-      <Section title="پایگاه داده ابری (Supabase)" icon="☁️">
-        <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>Supabase URL</label>
-          <input className="input" placeholder="https://xxx.supabase.co" dir="ltr"
-            value={supaUrl} onChange={(e) => setSupaUrl(e.target.value)} onBlur={save} />
-        </div>
-        <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>Supabase Anon Key</label>
-          <input className="input" placeholder="eyJhbGciOiJI..." dir="ltr" type="password"
-            value={supaKey} onChange={(e) => setSupaKey(e.target.value)} onBlur={save} />
-        </div>
-      </Section>
+      {/* Supabase Config (Admin only for now, since we migrate to PocketBase) */}
+      {isAdmin && (
+        <Section title="پایگاه داده ابری (درحال مهاجرت)" icon="☁️">
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>Supabase URL</label>
+            <input className="input" placeholder="https://xxx.supabase.co" dir="ltr"
+              value={supaUrl} onChange={(e) => setSupaUrl(e.target.value)} onBlur={save} />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>Supabase Anon Key</label>
+            <input className="input" placeholder="eyJhbGciOiJI..." dir="ltr" type="password"
+              value={supaKey} onChange={(e) => setSupaKey(e.target.value)} onBlur={save} />
+          </div>
+        </Section>
+      )}
 
       {/* Save */}
       <Button variant="primary" size="lg" onClick={save} style={{ width: '100%', marginBottom: 24 }}>
