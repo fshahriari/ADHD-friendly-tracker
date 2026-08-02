@@ -26,13 +26,14 @@ function EnergySelector() {
           style={{
             flex: 1, minWidth: 90, padding: '12px 8px', borderRadius: 12, border: '1.5px solid',
             cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', transition: 'all 150ms',
-            background: energyLevel === o.v ? 'rgba(139,92,246,0.2)' : 'rgba(15,10,30,0.4)',
+            background: energyLevel === o.v ? 'rgba(109, 40, 217, 0.25)' : 'transparent',
             borderColor: energyLevel === o.v ? '#8b5cf6' : '#2f2258',
-            color: energyLevel === o.v ? '#e2e8f0' : '#64748b',
+            color: energyLevel === o.v ? 'var(--text-primary)' : 'var(--text-muted)',
+            boxShadow: energyLevel === o.v ? '0 2px 10px rgba(109,40,217,0.2)' : 'none',
           }}>
           <div style={{ fontSize: '1.4rem', marginBottom: 4 }}>{o.icon}</div>
           <div style={{ fontSize: '0.8rem', fontWeight: 700 }}>{o.label}</div>
-          <div style={{ fontSize: '0.68rem', marginTop: 2, color: energyLevel === o.v ? '#94a3b8' : '#334155' }}>{o.desc}</div>
+          <div style={{ fontSize: '0.68rem', marginTop: 2, color: 'var(--text-muted)' }}>{o.desc}</div>
         </button>
       ))}
     </div>
@@ -56,7 +57,7 @@ function StatsBar({ tasks }) {
       ].map((s) => (
         <div key={s.label} className="surface" style={{ padding: '14px 10px', textAlign: 'center' }}>
           <div style={{ fontSize: '1.4rem', fontWeight: 800, color: s.color }}>{s.value}</div>
-          <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 3 }}>{s.label}</div>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 3 }}>{s.label}</div>
         </div>
       ))}
     </div>
@@ -105,15 +106,15 @@ export default function Dashboard() {
     <div className="page">
       {/* Greeting */}
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ margin: '0 0 6px', fontSize: '1.5rem', fontWeight: 800, color: '#e2e8f0', background: 'linear-gradient(135deg, #a78bfa, #34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+        <h1 style={{ margin: '0 0 6px', fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', background: 'linear-gradient(135deg, #a78bfa, #34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           سلام! 👋
         </h1>
         {/* Primary date — larger */}
-        <p style={{ margin: '0 0 3px', fontSize: '0.9rem', fontWeight: 600, color: '#94a3b8' }}>
+        <p style={{ margin: '0 0 3px', fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>
           {primaryDate}
         </p>
         {/* Secondary date — smaller, muted */}
-        <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b', direction: 'ltr', textAlign: 'right' }}>
+        <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)', direction: 'ltr', textAlign: 'right' }}>
           {secondaryDate}
         </p>
       </div>
@@ -133,7 +134,7 @@ export default function Dashboard() {
       {topTask && timerState === TIMER_STATES.IDLE && (
         <div className="surface-glass animate-slide-up" style={{ padding: '16px 20px', marginBottom: 20, borderColor: 'rgba(139,92,246,0.3)' }}>
           <div style={{ fontSize: '0.75rem', color: '#8b5cf6', fontWeight: 700, marginBottom: 6 }}>🎯 مهم‌ترین وظیفه الان</div>
-          <div style={{ fontSize: '1rem', fontWeight: 700, color: '#e2e8f0', marginBottom: 12 }}>{topTask.title}</div>
+          <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>{topTask.title}</div>
           <Button variant="primary" onClick={() => { startFocus(topTask.id, topTask.estimatedMinutes); navigate('/focus'); }}>
             <Focus size={16} /> شروع تمرکز
           </Button>

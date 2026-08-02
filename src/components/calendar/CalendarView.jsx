@@ -57,25 +57,25 @@ function AddEventModal({ open, onClose, defaultDate }) {
     <Modal open={open} onClose={onClose} title="➕ افزودن رویداد / کلاس / یادآوری به تقویم">
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>عنوان رویداد *</label>
+          <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>عنوان رویداد *</label>
           <input className="input" placeholder="مثال: کلاس ریاضی ۲ یا جلسه پروژه..."
             value={title} onChange={(e) => setTitle(e.target.value)} required />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>تاریخ رویداد</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>تاریخ رویداد</label>
             <input type="date" className="input" value={dateStr} onChange={(e) => setDateStr(e.target.value)} />
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>ساعت شروع</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>ساعت شروع</label>
             <input type="time" className="input" value={timeStr} onChange={(e) => setTimeStr(e.target.value)} />
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>دسته‌بندی</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>دسته‌بندی</label>
             <select className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
               <option value="lecture">کلاس / درس</option>
               <option value="exam">امتحان / کوییز</option>
@@ -84,13 +84,13 @@ function AddEventModal({ open, onClose, defaultDate }) {
             </select>
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>مکان / کلاس</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>مکان / کلاس</label>
             <input className="input" placeholder="کلاس ۱۰۲ یا آنلاین" value={location} onChange={(e) => setLocation(e.target.value)} />
           </div>
         </div>
 
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>زمان‌های یادآوری (Push Notification)</label>
+          <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>زمان‌های یادآوری (Push Notification)</label>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {[
               { m: 1440, label: '۱ روز قبل' },
@@ -170,7 +170,7 @@ function ICalPanel({ onSync }) {
       {icalUrls.map((url, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: 'rgba(15,10,30,0.4)', borderRadius: 8, border: '1px solid #1a1130' }}>
           <Link size={13} color="#64748b" style={{ flexShrink: 0 }} />
-          <span style={{ flex: 1, fontSize: '0.8rem', color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', direction: 'ltr', textAlign: 'left' }}>{url}</span>
+          <span style={{ flex: 1, fontSize: '0.8rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', direction: 'ltr', textAlign: 'left' }}>{url}</span>
           <button className="btn btn-icon btn-sm btn-ghost" onClick={() => removeIcalUrl(url)} style={{ color: '#64748b' }}>
             <Trash2 size={13} />
           </button>
@@ -223,7 +223,7 @@ function DualCalendarGrid({ currentDate, tasks, events, onDayClick, selectedDate
     <div>
       {/* Month/Year Titles — Main & Sub Dual Dates */}
       <div style={{ textAlign: 'center', marginBottom: 14 }}>
-        <div style={{ fontWeight: 800, fontSize: '1.1rem', color: isDark ? '#e2e8f0' : '#1e1b4b' }}>
+        <div style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-primary)' }}>
           {mainTitle}
         </div>
         <div style={{ fontSize: '0.78rem', fontWeight: 600, color: textFaint, marginTop: 1 }}>
@@ -263,7 +263,7 @@ function DualCalendarGrid({ currentDate, tasks, events, onDayClick, selectedDate
                 fontFamily: 'inherit', transition: 'all 150ms',
               }}>
               {/* Primary Date Number */}
-              <span style={{ fontSize: '0.9rem', fontWeight: isToday ? 800 : 600, color: isToday ? '#8b5cf6' : (isDark ? '#e2e8f0' : '#1e1b4b') }}>
+              <span style={{ fontSize: '0.9rem', fontWeight: isToday ? 800 : 600, color: isToday ? 'var(--color-primary-500)' : 'var(--text-primary)' }}>
                 {primaryNum}
               </span>
 
@@ -377,12 +377,12 @@ export default function CalendarView() {
                 <div key={e.id} className="surface" style={{ padding: '10px 14px', borderRight: '3px solid #34d399', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                      <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#e2e8f0' }}>📅 {e.title}</span>
+                      <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)' }}>📅 {e.title}</span>
                       <span style={{ fontSize: '0.72rem', background: 'rgba(52,211,153,0.15)', color: '#34d399', padding: '2px 8px', borderRadius: 20 }}>
                         رویداد تقویم
                       </span>
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: 4, display: 'flex', gap: 12 }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: 4, display: 'flex', gap: 12 }}>
                       <span><Clock size={12} /> {new Date(e.startDate).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })}</span>
                       {e.location && <span><MapPin size={12} /> {e.location}</span>}
                     </div>
@@ -397,7 +397,7 @@ export default function CalendarView() {
               {selectedItems.tasks.map((t) => (
                 <div key={t.id} className="surface" style={{ padding: '10px 14px', borderRight: `3px solid ${CAT_COLOR[t.category] || '#8b5cf6'}` }}>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#e2e8f0', flex: 1 }}>📋 {t.title}</span>
+                    <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)', flex: 1 }}>📋 {t.title}</span>
                     <span style={{ fontSize: '0.72rem', background: `${CAT_COLOR[t.category]}20`, color: CAT_COLOR[t.category], padding: '2px 8px', borderRadius: 20 }}>
                       {t.category}
                     </span>

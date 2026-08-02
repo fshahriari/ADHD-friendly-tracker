@@ -59,7 +59,7 @@ export function Modal({ open, onClose, title, children, maxWidth = '520px' }) {
       <div className="modal-content surface-glass" style={{ maxWidth }}>
         {title && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 20px 0' }}>
-            <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#e2e8f0' }}>{title}</h2>
+            <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>{title}</h2>
             <button onClick={onClose} className="btn btn-ghost btn-icon btn-sm" aria-label="بستن">✕</button>
           </div>
         )}

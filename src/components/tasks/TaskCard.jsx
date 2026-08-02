@@ -80,7 +80,7 @@ export default function TaskCard({ task, onEdit }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
             <PriorityDot priority={task.priority} />
-            <span style={{ fontWeight: 600, fontSize: '0.95rem', color: task.completed ? '#475569' : '#e2e8f0', textDecoration: task.completed ? 'line-through' : 'none', wordBreak: 'break-word' }}>
+            <span style={{ fontWeight: 600, fontSize: '0.95rem', color: task.completed ? 'var(--text-muted)' : 'var(--text-primary)', textDecoration: task.completed ? 'line-through' : 'none', wordBreak: 'break-word' }}>
               {task.title}
             </span>
           </div>
@@ -174,7 +174,7 @@ export default function TaskCard({ task, onEdit }) {
                 {step.done ? '✅' : `${idx + 1}.`}
               </span>
               <div style={{ flex: 1 }}>
-                <span style={{ fontSize: '0.85rem', color: '#e2e8f0', textDecoration: step.done ? 'line-through' : 'none' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)', textDecoration: step.done ? 'line-through' : 'none' }}>
                   {step.title}
                 </span>
                 {step.estimatedMinutes && (
