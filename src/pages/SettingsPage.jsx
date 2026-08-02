@@ -110,6 +110,8 @@ export default function SettingsPage() {
     toast('قانون جدید اضافه شد ✨');
   };
 
+  const isDark = settings.theme === 'dark';
+
   return (
     <div className="page">
       <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#e2e8f0', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 8 }}>
