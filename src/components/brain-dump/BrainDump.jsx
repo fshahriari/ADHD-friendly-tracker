@@ -47,6 +47,8 @@ export default function BrainDump() {
     recognition.continuous = true;
     recognition.interimResults = true;
 
+    // Capture the exact text when recording starts to avoid duplicating phrases
+    const originalText = text.trim() ? text.trim() + ' ' : '';
     let finalTranscript = '';
 
     recognition.onresult = (e) => {
@@ -58,15 +60,13 @@ export default function BrainDump() {
           interim += e.results[i][0].transcript;
         }
       }
-      setText((prev) => {
-        const base = prev.replace(/\[🎙️.*?\]/g, '');
-        return base + finalTranscript + (interim ? `[🎙️ ${interim}]` : '');
-      });
+      // Always rebuild from original text + all finalized speech + current interim
+      setText(originalText + finalTranscript + (interim ? `[🎙️ ${interim}]` : ''));
     };
 
     recognition.onend = () => {
       setIsListening(false);
-      setText((prev) => prev.replace(/\[🎙️.*?\]/g, ''));
+      setText((prev) => prev.replace(/\[🎙️.*?\]/g, '').trim());
     };
 
     recognition.onerror = (e) => {
