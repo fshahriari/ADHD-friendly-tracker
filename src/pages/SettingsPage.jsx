@@ -50,7 +50,7 @@ function Toggle({ value, onChange }) {
 }
 
 const ACCENT_COLORS = [
-  { id: 'violet', label: 'بنفش تمرکز', color: 'var(--color-primary-500)' },
+  { id: 'violet', label: 'بنفش تمرکز', color: '#8b5cf6' },
   { id: 'emerald', label: 'زمردی دوپامین', color: '#10b981' },
   { id: 'cyan', label: 'آبی اقیانوس', color: '#0ea5e9' },
   { id: 'rose', label: 'رز انرژی', color: '#f43f5e' },

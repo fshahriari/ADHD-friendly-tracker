@@ -50,7 +50,7 @@ function Sidebar() {
   return (
     <aside style={{
       width: 220, height: '100dvh', position: 'sticky', top: 0,
-      background: isDark ? 'rgba(10,7,20,0.95)' : '#ede9fe',
+      background: isDark ? 'var(--bg-sidebar-dark, rgba(10,7,20,0.95))' : 'var(--bg-sidebar-light, #ede9fe)',
       borderLeft: `1px solid ${isDark ? '#1a1130' : 'rgba(var(--accent-glow-rgb),0.18)'}`,
       display: 'flex', flexDirection: 'column', padding: '24px 0',
       transition: 'background 250ms ease, border-color 250ms ease',
@@ -58,12 +58,12 @@ function Sidebar() {
       {/* Logo */}
       <div style={{ padding: '0 20px 24px', borderBottom: `1px solid ${isDark ? '#1a1130' : 'rgba(var(--accent-glow-rgb),0.15)'}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #6d28d9, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, var(--color-primary-700), var(--color-primary-400))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
             🎯
           </div>
           <div>
             <div style={{ fontWeight: 800, fontSize: '0.95rem', color: isDark ? '#e2e8f0' : '#1e1b4b' }}>ردیاب ADHD</div>
-            <div style={{ fontSize: '0.7rem', color: isDark ? '#64748b' : '#5b4fa0' }}>Student Tracker</div>
+            <div style={{ fontSize: '0.7rem', color: isDark ? 'var(--color-primary-300)' : 'var(--color-primary-700)' }}>Student Tracker</div>
           </div>
         </div>
       </div>
@@ -80,12 +80,12 @@ function Sidebar() {
                 ? (isDark ? 'rgba(var(--accent-glow-rgb),0.15)' : 'rgba(var(--accent-glow-rgb),0.12)')
                 : 'transparent',
               color: isActive
-                ? (isDark ? '#a78bfa' : '#6d28d9')
-                : (isDark ? '#64748b' : '#4c4469'),
+                ? (isDark ? 'var(--color-primary-400)' : 'var(--color-primary-700)')
+                : (isDark ? 'var(--text-secondary)' : 'var(--text-secondary)'),
               border: `1px solid ${isActive ? 'rgba(var(--accent-glow-rgb),0.3)' : 'transparent'}`,
             })}>
             {to === '/focus' && isTimerRunning
-              ? <><Timer size={18} color="#34d399" />{label}<span style={{ fontSize: '0.72rem', color: '#34d399', marginRight: 'auto' }}>{getDisplayTime()}</span></>
+              ? <><Timer size={18} color="var(--color-primary-500)" />{label}<span style={{ fontSize: '0.72rem', color: 'var(--color-primary-500)', marginRight: 'auto' }}>{getDisplayTime()}</span></>
               : <><Icon size={18} />{label}</>
             }
           </NavLink>

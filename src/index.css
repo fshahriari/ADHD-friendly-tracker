@@ -117,7 +117,7 @@ body {
 
 [data-theme="light"] .surface-glass {
   background: rgba(255, 255, 255, 0.88);
-  border-color: rgba(109, 40, 217, 0.25);
+  border-color: rgba(var(--accent-glow-rgb), 0.25);
 }
 
 /* ── Light Mode: Text contrast fixes ─────────────────────────────────── */
@@ -320,7 +320,7 @@ body {
 }
 [data-theme="light"] .input:focus {
   border-color: #7c3aed;
-  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15);
+  box-shadow: 0 0 0 3px rgba(var(--accent-glow-rgb), 0.15);
 }
 
 /* ── Light Mode: Task cards ──────────────────────────────────────────── */
@@ -331,7 +331,7 @@ body {
 }
 [data-theme="light"] .task-card:hover {
   border-color: #7c3aed;
-  box-shadow: 0 4px 20px rgba(109, 40, 217, 0.12);
+  box-shadow: 0 4px 20px rgba(var(--accent-glow-rgb), 0.12);
 }
 
 /* ── Light Mode: Buttons ─────────────────────────────────────────────── */
@@ -341,13 +341,8 @@ body {
   background: transparent;
 }
 [data-theme="light"] .btn-ghost:hover:not(:disabled) {
-  background: rgba(109, 40, 217, 0.08);
-  color: #1e1b4b;
-}
-
-/* ── Light Mode: Scrollbar ───────────────────────────────────────────── */
-[data-theme="light"] ::-webkit-scrollbar-thumb {
-  background: #a78bfa;
+  background: rgba(var(--accent-glow-rgb), 0.08);
+  color: var(--text-primary);
 }
 
 /* ── Card Surface ─────────────────────────────────────────────────────── */
@@ -360,7 +355,7 @@ body {
 
 .surface-glass {
   background: rgba(26, 17, 48, 0.7);
-  border: 1px solid rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(var(--accent-glow-rgb), 0.2);
   border-radius: var(--radius-card);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -368,13 +363,14 @@ body {
 
 [data-theme="light"] .surface-glass {
   background: rgba(255, 255, 255, 0.8);
-  border-color: rgba(139, 92, 246, 0.3);
+  border-color: rgba(var(--accent-glow-rgb), 0.3);
 }
 
 /* ── Scrollbar ────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--color-primary-700); border-radius: 9999px; }
+::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 9999px; } /* Dark gray for dark mode */
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: #9ca3af; } /* Light gray for light mode */
 
 /* ── Focus Ring (ADHD accessibility) ─────────────────────────────────── */
 :focus-visible {
@@ -420,9 +416,9 @@ body {
 }
 
 @keyframes pulse-ring {
-  0%   { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
-  70%  { box-shadow: 0 0 0 12px rgba(139, 92, 246, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+  0%   { box-shadow: 0 0 0 0 rgba(var(--accent-glow-rgb), 0.4); }
+  70%  { box-shadow: 0 0 0 12px rgba(var(--accent-glow-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--accent-glow-rgb), 0); }
 }
 
 @keyframes spin-slow {
@@ -448,7 +444,7 @@ body {
 .animate-spin-slow { animation: spin-slow 3s linear infinite; }
 
 .shimmer-bg {
-  background: linear-gradient(90deg, transparent 0%, rgba(139, 92, 246, 0.1) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(var(--accent-glow-rgb), 0.1) 50%, transparent 100%);
   background-size: 200% auto;
   animation: shimmer 2s linear infinite;
 }
@@ -546,7 +542,7 @@ body {
 
 .input:focus {
   border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+  box-shadow: 0 0 0 3px rgba(var(--accent-glow-rgb), 0.2);
 }
 
 .input::placeholder { color: #475569; }
@@ -626,7 +622,7 @@ textarea.input { resize: vertical; min-height: 120px; line-height: 1.7; }
 
 .nav-item.active {
   color: var(--color-primary-400);
-  background: rgba(139, 92, 246, 0.12);
+  background: rgba(var(--accent-glow-rgb), 0.12);
 }
 
 .nav-item:hover:not(.active) {
@@ -660,14 +656,14 @@ textarea.input { resize: vertical; min-height: 120px; line-height: 1.7; }
 
 .task-card:hover {
   border-color: var(--color-primary-600);
-  box-shadow: 0 4px 20px rgba(109, 40, 217, 0.15);
+  box-shadow: 0 4px 20px rgba(var(--accent-glow-rgb), 0.15);
   transform: translateX(-2px);
 }
 
 .task-card.dragging {
   opacity: 0.5;
   border-color: var(--color-primary-500);
-  box-shadow: 0 8px 30px rgba(109, 40, 217, 0.3);
+  box-shadow: 0 8px 30px rgba(var(--accent-glow-rgb), 0.3);
 }
 
 .task-card.completed {
