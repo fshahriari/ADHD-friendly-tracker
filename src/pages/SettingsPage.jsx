@@ -283,7 +283,7 @@ export default function SettingsPage() {
                 settings.update({ aiProvider: e.target.value });
               }} style={{ width: '100%' }}>
                 <option value="gemini">Gemini (پروکسی Cloudflare)</option>
-                <option value="openai">OpenAI Compatible (سرویس‌های واسط ایرانی)</option>
+                <option value="openai">OpenAI Compatible (مثل Groq و OpenRouter)</option>
               </select>
             </div>
 
