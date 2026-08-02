@@ -600,6 +600,7 @@ textarea.input { resize: vertical; min-height: 120px; line-height: 1.7; }
 
 /* ── Progress Ring ────────────────────────────────────────────────────── */
 .progress-ring-track { fill: none; stroke: var(--color-surface-700); }
+[data-theme="light"] .progress-ring-track { stroke: #c4b5fd; }
 .progress-ring-fill {
   fill: none;
   stroke: var(--color-primary-500);

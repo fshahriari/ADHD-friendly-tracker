@@ -5,8 +5,13 @@ import { useTaskStore } from '../../store/useTaskStore';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 
+import { useSettingsStore } from '../../store/useSettingsStore';
+
 // ── SVG Timer Ring ────────────────────────────────────────────────────────
 function TimerRing({ progress, displayTime, state, sessionCount }) {
+  const { theme } = useSettingsStore();
+  const isDark = theme === 'dark';
+
   const R = 100;
   const cx = 130;
   const cy = 130;
@@ -18,7 +23,7 @@ function TimerRing({ progress, displayTime, state, sessionCount }) {
     [TIMER_STATES.PAUSED]:  '#f59e0b',
     [TIMER_STATES.BREAK]:   '#34d399',
     [TIMER_STATES.DONE]:    '#34d399',
-    [TIMER_STATES.IDLE]:    '#2f2258',
+    [TIMER_STATES.IDLE]:    isDark ? '#2f2258' : '#6d28d9',
   };
   const strokeColor = colors[state] || '#8b5cf6';
 
@@ -68,17 +73,17 @@ function TimerRing({ progress, displayTime, state, sessionCount }) {
           </div>
         ) : (
           <>
-            <div style={{ fontSize: '3rem', fontWeight: 800, color: '#e2e8f0', fontVariantNumeric: 'tabular-nums', letterSpacing: '-2px' }}>
+            <div style={{ fontSize: '3rem', fontWeight: 800, color: isDark ? '#e2e8f0' : '#1e1b4b', fontVariantNumeric: 'tabular-nums', letterSpacing: '-2px' }}>
               {displayTime}
             </div>
-            <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 2 }}>
+            <div style={{ fontSize: '0.82rem', fontWeight: 600, color: isDark ? '#94a3b8' : '#4c4469', marginTop: 2 }}>
               {state === TIMER_STATES.IDLE   && 'آماده شروع'}
               {state === TIMER_STATES.RUNNING && '🔥 در حال تمرکز'}
               {state === TIMER_STATES.PAUSED  && '⏸ مکث شده'}
               {state === TIMER_STATES.BREAK   && '☕ استراحت'}
             </div>
             {sessionCount > 0 && (
-              <div style={{ fontSize: '0.72rem', color: '#475569', marginTop: 4 }}>
+              <div style={{ fontSize: '0.72rem', color: isDark ? '#64748b' : '#5b4fa0', marginTop: 4 }}>
                 {'🍅'.repeat(Math.min(sessionCount, 8))} {sessionCount} جلسه
               </div>
             )}
