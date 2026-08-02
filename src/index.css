@@ -111,11 +111,14 @@ body {
 }
 
 /* ── Light Mode: Text contrast fixes ─────────────────────────────────── */
-/* Override all washed-out #475569 / #64748b grays → readable dark tones */
+/* Override all washed-out/light grays → readable dark tones */
 [data-theme="light"] .text-muted,
 [data-theme="light"] [style*="color: #64748b"],
 [data-theme="light"] [style*="color: #475569"],
-[data-theme="light"] [style*="color: #334155"] {
+[data-theme="light"] [style*="color: #334155"],
+[data-theme="light"] [style*="color: #e2e8f0"],
+[data-theme="light"] [style*="color: #94a3b8"],
+[data-theme="light"] [style*="color: #cbd5e1"] {
   color: #4c4469 !important;
 }
 

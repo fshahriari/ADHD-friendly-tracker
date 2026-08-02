@@ -174,14 +174,14 @@ export default function SettingsPage() {
 
       {/* AI Coach Preferences & Rules */}
       <Section title="حافظه و قوانین دستیار ADHD" icon="🧠">
-        <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0 }}>
+        <p style={{ fontSize: '0.8rem', color: isDark ? '#94a3b8' : '#4c4469', margin: 0 }}>
           دستیار هوش مصنوعی هنگام بررسی متن شما، این قوانین را به عنوان ترجیح شما در نظر می‌گیرد و یادآوری‌ها را بر این اساس تنظیم می‌کند.
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
           {coachRules.map((rule) => (
             <div key={rule.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: 'rgba(139,92,246,0.1)', borderRadius: 10, border: '1px solid rgba(139,92,246,0.2)' }}>
-              <span style={{ fontSize: '0.83rem', color: '#e2e8f0' }}>📌 {rule.rule}</span>
+              <span style={{ fontSize: '0.83rem', color: isDark ? '#e2e8f0' : '#1e1b4b', fontWeight: isDark ? 400 : 500 }}>📌 {rule.rule}</span>
               <button onClick={() => deleteCoachRule(rule.id)} className="btn btn-icon btn-ghost btn-sm" style={{ color: '#fb7185' }}>
                 <Trash2 size={14} />
               </button>
@@ -201,25 +201,25 @@ export default function SettingsPage() {
       {/* Multi-Proxy & AI Resilience (Iran Context) */}
       <Section title="تنظیمات هوش مصنوعی (پروکسی و کلید)" icon="🤖">
         <div style={{ padding: '10px 14px', background: 'rgba(14,165,233,0.08)', borderRadius: 10, border: '1px solid rgba(14,165,233,0.2)' }}>
-          <p style={{ margin: 0, fontSize: '0.8rem', color: '#7dd3fc', lineHeight: 1.6 }}>
+          <p style={{ margin: 0, fontSize: '0.8rem', color: isDark ? '#7dd3fc' : '#0369a1', lineHeight: 1.6 }}>
             برای مواجهه با قطعی‌های اینترنت و محدودیت‌ها، می‌توانید سرور اصلی، سرور پشتیبان، یا کلید مستقیم Gemini API قرار دهید. سیستم به طور خودکار در صورت قطعی سوئچ می‌کند.
           </p>
         </div>
 
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>آدرس پروکسی اصلی (Cloudflare Worker)</label>
+          <label style={{ display: 'block', fontSize: '0.8rem', color: isDark ? '#94a3b8' : '#4c4469', fontWeight: isDark ? 400 : 600, marginBottom: 6 }}>آدرس پروکسی اصلی (Cloudflare Worker)</label>
           <input className="input" placeholder="https://my-worker.workers.dev" dir="ltr"
             value={proxyUrl} onChange={(e) => setProxyUrl(e.target.value)} />
         </div>
 
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>آدرس پروکسی پشتیبان (آدرس دوم / سرور رزرو)</label>
+          <label style={{ display: 'block', fontSize: '0.8rem', color: isDark ? '#94a3b8' : '#4c4469', fontWeight: isDark ? 400 : 600, marginBottom: 6 }}>آدرس پروکسی پشتیبان (آدرس دوم / سرور رزرو)</label>
           <input className="input" placeholder="https://backup-worker.workers.dev" dir="ltr"
             value={backupUrl} onChange={(e) => setBackupUrl(e.target.value)} />
         </div>
 
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>کلید مستقیم Gemini API (در صورت اتصال مستقیم بدون VPN)</label>
+          <label style={{ display: 'block', fontSize: '0.8rem', color: isDark ? '#94a3b8' : '#4c4469', fontWeight: isDark ? 400 : 600, marginBottom: 6 }}>کلید مستقیم Gemini API (در صورت اتصال مستقیم بدون VPN)</label>
           <input className="input" placeholder="AIzaSy..." dir="ltr" type="password"
             value={directKey} onChange={(e) => setDirectKey(e.target.value)} />
         </div>
@@ -247,12 +247,12 @@ export default function SettingsPage() {
       {/* Supabase Config */}
       <Section title="پایگاه داده ابری (Supabase)" icon="☁️">
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>Supabase URL</label>
+          <label style={{ display: 'block', fontSize: '0.8rem', color: isDark ? '#94a3b8' : '#4c4469', fontWeight: isDark ? 400 : 600, marginBottom: 6 }}>Supabase URL</label>
           <input className="input" placeholder="https://xxx.supabase.co" dir="ltr"
             value={supaUrl} onChange={(e) => setSupaUrl(e.target.value)} />
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>Supabase Anon Key</label>
+          <label style={{ display: 'block', fontSize: '0.8rem', color: isDark ? '#94a3b8' : '#4c4469', fontWeight: isDark ? 400 : 600, marginBottom: 6 }}>Supabase Anon Key</label>
           <input className="input" placeholder="eyJhbGciOiJI..." dir="ltr" type="password"
             value={supaKey} onChange={(e) => setSupaKey(e.target.value)} />
         </div>
