@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { ChevronRight, ChevronLeft, Link, RefreshCw, Plus, Trash2, Calendar as CalendarIcon, Bell, Clock, MapPin } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Link, RefreshCw, Plus, Trash2, Calendar as CalendarIcon, Bell, Clock, MapPin, Settings as SettingsIcon } from 'lucide-react';
 import { useTaskStore } from '../../store/useTaskStore';
 import { useEventStore } from '../../store/useEventStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
@@ -8,10 +8,11 @@ import { icalDb } from '../../lib/db';
 import {
   getJalaliMonthGrid, jalaliAddMonth, jalaliSubMonth,
   formatJalali, isSameDayJalali, PERSIAN_WEEKDAYS,
-  toJalaliString,
+  toJalaliString, getJalaliParts,
 } from '../../lib/jalali';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns';
 import { Button, Spinner, toast, Modal } from '../shared';
+import { useNavigate } from 'react-router-dom';
 
 const CAT_COLOR = {
   exam: '#f43f5e', assignment: '#f59e0b', habit: '#10b981',
@@ -26,7 +27,7 @@ function AddEventModal({ open, onClose, defaultDate }) {
   const [dateStr, setDateStr] = useState(defaultDate ? defaultDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
   const [timeStr, setTimeStr] = useState('10:00');
   const [location, setLocation] = useState('');
-  const [reminders, setReminders] = useState([1440, 60]); // Default 1 day and 1 hour before
+  const [reminders, setReminders] = useState([1440, 60]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -88,7 +89,6 @@ function AddEventModal({ open, onClose, defaultDate }) {
           </div>
         </div>
 
-        {/* Reminder offsets */}
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: 6 }}>زمان‌های یادآوری (Push Notification)</label>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -184,80 +184,34 @@ function ICalPanel({ onSync }) {
   );
 }
 
-// ── Jalali Calendar Grid ──────────────────────────────────────────────────
-function JalaliGrid({ currentDate, tasks, events, onDayClick, selectedDate, isDark }) {
-  const { days, firstDayOffset, month, year } = getJalaliMonthGrid(currentDate);
+// ── Unified Dual-Date Calendar Grid ───────────────────────────────────────
+function DualCalendarGrid({ currentDate, tasks, events, onDayClick, selectedDate, isDark, primaryCalendar }) {
+  const isJalaliPrimary = primaryCalendar !== 'gregorian';
   const today = new Date();
   const textMuted = isDark ? '#94a3b8' : '#4c4469';
   const textFaint = isDark ? '#475569' : '#7c6fa0';
 
-  const getItemsForDay = (day) => {
-    const tList = tasks.filter((t) => t.dueDate && isSameDayJalali(new Date(t.dueDate), day));
-    const eList = events.filter((e) => e.startDate && isSameDayJalali(new Date(e.startDate), day));
-    return { tList, eList };
-  };
+  // Compute Grid Days
+  let days = [];
+  let firstDayOffset = 0;
+  let mainTitle = '';
+  let subTitle = '';
 
-  return (
-    <div>
-      <div style={{ textAlign: 'center', marginBottom: 12 }}>
-        <span style={{ fontWeight: 700, fontSize: '1rem', color: isDark ? '#e2e8f0' : '#1e1b4b' }}>{month} {year}</span>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 6 }}>
-        {PERSIAN_WEEKDAYS.map((wd) => (
-          <div key={wd} style={{ textAlign: 'center', fontSize: '0.72rem', color: textFaint, fontWeight: 700, padding: '4px 0' }}>
-            {wd}
-          </div>
-        ))}
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
-        {Array.from({ length: firstDayOffset }).map((_, i) => <div key={`e${i}`} />)}
-
-        {days.map((day) => {
-          const { tList, eList } = getItemsForDay(day);
-          const isToday = isSameDayJalali(day, today);
-          const isSel = selectedDate && isSameDayJalali(day, selectedDate);
-          const totalCount = tList.length + eList.length;
-
-          return (
-            <button key={day.toISOString()} onClick={() => onDayClick(day)}
-              style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                gap: 2, padding: '8px 4px', borderRadius: 8, cursor: 'pointer',
-                border: `1.5px solid ${isSel ? '#8b5cf6' : isToday ? 'rgba(139,92,246,0.4)' : 'transparent'}`,
-                background: isSel ? 'rgba(139,92,246,0.2)' : isToday ? 'rgba(139,92,246,0.08)' : 'transparent',
-                color: isToday ? '#a78bfa' : textMuted,
-                fontFamily: 'inherit', transition: 'all 150ms',
-              }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: isToday ? 700 : 500 }}>
-                {formatJalali(day, 'd')}
-              </span>
-              <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center', minHeight: 6 }}>
-                {tList.slice(0, 2).map((t, i) => (
-                  <span key={`t${i}`} style={{ width: 5, height: 5, borderRadius: '50%', background: CAT_COLOR[t.category] || '#8b5cf6' }} />
-                ))}
-                {eList.slice(0, 2).map((e, i) => (
-                  <span key={`e${i}`} style={{ width: 5, height: 5, borderRadius: 1, background: '#34d399' }} />
-                ))}
-              </div>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// ── Gregorian Calendar Grid ───────────────────────────────────────────────
-function GregorianGrid({ currentDate, tasks, events, onDayClick, selectedDate, isDark }) {
-  const start = startOfMonth(currentDate);
-  const end = endOfMonth(currentDate);
-  const days = eachDayOfInterval({ start, end });
-  const today = new Date();
-  const firstDayOffset = start.getDay();
-  const textMuted = isDark ? '#94a3b8' : '#4c4469';
-  const textFaint = isDark ? '#475569' : '#7c6fa0';
+  if (isJalaliPrimary) {
+    const grid = getJalaliMonthGrid(currentDate);
+    days = grid.days;
+    firstDayOffset = grid.firstDayOffset;
+    mainTitle = `${grid.month} ${grid.year}`;
+    subTitle = format(currentDate, 'MMMM yyyy');
+  } else {
+    const start = startOfMonth(currentDate);
+    const end = endOfMonth(currentDate);
+    days = eachDayOfInterval({ start, end });
+    firstDayOffset = start.getDay();
+    mainTitle = format(currentDate, 'MMMM yyyy');
+    const jParts = getJalaliParts(currentDate);
+    subTitle = `${formatJalali(currentDate, 'MMMM')} ${jParts.jy}`;
+  }
 
   const getItemsForDay = (day) => {
     const tList = tasks.filter((t) => t.dueDate && isSameDay(new Date(t.dueDate), day));
@@ -267,38 +221,64 @@ function GregorianGrid({ currentDate, tasks, events, onDayClick, selectedDate, i
 
   return (
     <div>
-      <div style={{ textAlign: 'center', marginBottom: 12 }}>
-        <span style={{ fontWeight: 700, fontSize: '1rem', color: isDark ? '#e2e8f0' : '#1e1b4b' }}>
-          {format(currentDate, 'MMMM yyyy')}
-        </span>
+      {/* Month/Year Titles — Main & Sub Dual Dates */}
+      <div style={{ textAlign: 'center', marginBottom: 14 }}>
+        <div style={{ fontWeight: 800, fontSize: '1.1rem', color: isDark ? '#e2e8f0' : '#1e1b4b' }}>
+          {mainTitle}
+        </div>
+        <div style={{ fontSize: '0.78rem', fontWeight: 600, color: textFaint, marginTop: 1 }}>
+          {subTitle}
+        </div>
       </div>
+
+      {/* Weekday headers */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 6 }}>
-        {['S','M','T','W','T','F','S'].map((d, i) => (
-          <div key={i} style={{ textAlign: 'center', fontSize: '0.72rem', color: textFaint, fontWeight: 700 }}>{d}</div>
+        {PERSIAN_WEEKDAYS.map((wd) => (
+          <div key={wd} style={{ textAlign: 'center', fontSize: '0.75rem', color: textFaint, fontWeight: 700, padding: '4px 0' }}>
+            {wd}
+          </div>
         ))}
       </div>
+
+      {/* Grid cells showing BOTH dates */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
         {Array.from({ length: firstDayOffset }).map((_, i) => <div key={`e${i}`} />)}
+
         {days.map((day) => {
           const { tList, eList } = getItemsForDay(day);
           const isToday = isSameDay(day, today);
           const isSel = selectedDate && isSameDay(day, selectedDate);
+
+          const primaryNum = isJalaliPrimary ? formatJalali(day, 'd') : format(day, 'd');
+          const secondaryNum = isJalaliPrimary ? format(day, 'd') : formatJalali(day, 'd');
+
           return (
             <button key={day.toISOString()} onClick={() => onDayClick(day)}
               style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-                padding: '8px 4px', borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
-                border: `1.5px solid ${isSel ? '#8b5cf6' : isToday ? 'rgba(139,92,246,0.4)' : 'transparent'}`,
-                background: isSel ? 'rgba(139,92,246,0.2)' : isToday ? 'rgba(139,92,246,0.08)' : 'transparent',
-                color: isToday ? '#a78bfa' : textMuted, transition: 'all 150ms',
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                justify: 'center', gap: 1, padding: '6px 2px', borderRadius: 10, cursor: 'pointer',
+                border: `1.5px solid ${isSel ? '#8b5cf6' : isToday ? 'rgba(139,92,246,0.5)' : 'transparent'}`,
+                background: isSel ? 'rgba(139,92,246,0.22)' : isToday ? 'rgba(139,92,246,0.1)' : 'transparent',
+                color: isToday ? '#a78bfa' : textMuted,
+                fontFamily: 'inherit', transition: 'all 150ms',
               }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: isToday ? 700 : 500 }}>{format(day, 'd')}</span>
-              <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center', minHeight: 6 }}>
+              {/* Primary Date Number */}
+              <span style={{ fontSize: '0.9rem', fontWeight: isToday ? 800 : 600, color: isToday ? '#8b5cf6' : (isDark ? '#e2e8f0' : '#1e1b4b') }}>
+                {primaryNum}
+              </span>
+
+              {/* Secondary Date Number (Alternative) */}
+              <span style={{ fontSize: '0.65rem', fontWeight: 500, color: textFaint, marginTop: -2 }}>
+                {secondaryNum}
+              </span>
+
+              {/* Event & Task indicator dots */}
+              <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center', minHeight: 6, marginTop: 2 }}>
                 {tList.slice(0, 2).map((t, i) => (
-                  <span key={`t${i}`} style={{ width: 5, height: 5, borderRadius: '50%', background: CAT_COLOR[t.category] || '#8b5cf6' }} />
+                  <span key={`t${i}`} style={{ width: 4, height: 4, borderRadius: '50%', background: CAT_COLOR[t.category] || '#8b5cf6' }} />
                 ))}
                 {eList.slice(0, 2).map((e, i) => (
-                  <span key={`e${i}`} style={{ width: 5, height: 5, borderRadius: 1, background: '#34d399' }} />
+                  <span key={`e${i}`} style={{ width: 4, height: 4, borderRadius: 1, background: '#34d399' }} />
                 ))}
               </div>
             </button>
@@ -311,7 +291,6 @@ function GregorianGrid({ currentDate, tasks, events, onDayClick, selectedDate, i
 
 // ── Main Calendar View ────────────────────────────────────────────────────
 export default function CalendarView() {
-  const [mode, setMode] = useState('jalali');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
 
@@ -320,8 +299,9 @@ export default function CalendarView() {
 
   const { tasks } = useTaskStore();
   const { events, loadEvents, deleteEvent } = useEventStore();
-  const { theme } = useSettingsStore();
+  const { theme, calendarPrimary = 'jalali' } = useSettingsStore();
   const isDark = theme === 'dark';
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadEvents();
@@ -329,19 +309,25 @@ export default function CalendarView() {
 
   const selectedItems = useMemo(() => {
     if (!selectedDate) return { tasks: [], events: [] };
-    const tFiltered = tasks.filter((t) => t.dueDate && (mode === 'jalali' ? isSameDayJalali(new Date(t.dueDate), selectedDate) : isSameDay(new Date(t.dueDate), selectedDate)));
-    const eFiltered = events.filter((e) => e.startDate && (mode === 'jalali' ? isSameDayJalali(new Date(e.startDate), selectedDate) : isSameDay(new Date(e.startDate), selectedDate)));
+    const tFiltered = tasks.filter((t) => t.dueDate && isSameDay(new Date(t.dueDate), selectedDate));
+    const eFiltered = events.filter((e) => e.startDate && isSameDay(new Date(e.startDate), selectedDate));
     return { tasks: tFiltered, events: eFiltered };
-  }, [selectedDate, tasks, events, mode]);
+  }, [selectedDate, tasks, events]);
 
-  const prevMonth = () => setCurrentDate((d) => mode === 'jalali' ? jalaliSubMonth(d) : subMonths(d, 1));
-  const nextMonth = () => setCurrentDate((d) => mode === 'jalali' ? jalaliAddMonth(d) : addMonths(d, 1));
+  const isJalali = calendarPrimary !== 'gregorian';
+  const prevMonth = () => setCurrentDate((d) => isJalali ? jalaliSubMonth(d) : subMonths(d, 1));
+  const nextMonth = () => setCurrentDate((d) => isJalali ? jalaliAddMonth(d) : addMonths(d, 1));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
-        <h1 className="section-title" style={{ margin: 0, fontSize: '1.3rem' }}>📅 تقویم و رویدادها</h1>
+        <div>
+          <h1 className="section-title" style={{ margin: 0, fontSize: '1.3rem' }}>📅 تقویم یکپارچه دوگانه</h1>
+          <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: '#64748b' }}>
+            نمایش همزمان تاریخ شمسی و میلادی · تاریخ اصلی: <strong>{isJalali ? 'شمسی' : 'میلادی'}</strong>
+          </p>
+        </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Button variant="primary" size="sm" onClick={() => setShowAddEvent(true)}>
             <Plus size={14} /> افزودن رویداد
@@ -352,55 +338,38 @@ export default function CalendarView() {
         </div>
       </div>
 
-      {/* Mode toggle — theme-aware */}
-      <div className="date-toggle-container" style={{
-        display: 'flex',
-        background: isDark ? '#0f0a1e' : '#e4dcfc',
-        borderRadius: 10, padding: 4, gap: 4, width: 'fit-content',
-        border: `1px solid ${isDark ? '#1a1130' : 'rgba(109,40,217,0.2)'}`,
-      }}>
-        {[{ v: 'jalali', l: 'شمسی' }, { v: 'gregorian', l: 'میلادی' }].map((m) => (
-          <button key={m.v} onClick={() => setMode(m.v)}
-            className={`date-toggle-btn${mode === m.v ? ' active' : ''}`}
-            style={{
-              padding: '7px 18px', borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
-              border: 'none', fontWeight: 700, fontSize: '0.85rem', transition: 'all 150ms',
-              background: mode === m.v
-                ? (isDark ? 'rgba(139,92,246,0.35)' : '#6d28d9')
-                : 'transparent',
-              color: mode === m.v
-                ? (isDark ? '#a78bfa' : '#ffffff')
-                : (isDark ? '#64748b' : '#4c4469'),
-            }}>
-            {m.l}
-          </button>
-        ))}
-      </div>
-
-      {/* Calendar grid card */}
+      {/* Unified Calendar Grid Card */}
       <div className="surface" style={{ padding: 16 }}>
-        {/* Nav */}
+        {/* Navigation bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <button onClick={nextMonth} className="btn btn-icon btn-ghost btn-sm"><ChevronRight size={18} /></button>
-          <button onClick={() => setCurrentDate(new Date())} className="btn btn-ghost btn-sm" style={{ fontSize: '0.78rem' }}>امروز</button>
-          <button onClick={prevMonth} className="btn btn-icon btn-ghost btn-sm"><ChevronLeft size={18} /></button>
+          <button onClick={nextMonth} className="btn btn-icon btn-ghost btn-sm" title="ماه بعدی"><ChevronRight size={18} /></button>
+          <button onClick={() => setCurrentDate(new Date())} className="btn btn-ghost btn-sm" style={{ fontSize: '0.8rem', fontWeight: 600 }}>امروز</button>
+          <button onClick={prevMonth} className="btn btn-icon btn-ghost btn-sm" title="ماه قبلی"><ChevronLeft size={18} /></button>
         </div>
 
-        {mode === 'jalali'
-          ? <JalaliGrid currentDate={currentDate} tasks={tasks} events={events} onDayClick={setSelectedDate} selectedDate={selectedDate} isDark={isDark} />
-          : <GregorianGrid currentDate={currentDate} tasks={tasks} events={events} onDayClick={setSelectedDate} selectedDate={selectedDate} isDark={isDark} />
-        }
+        {/* Dual Calendar Grid */}
+        <DualCalendarGrid
+          currentDate={currentDate}
+          tasks={tasks}
+          events={events}
+          onDayClick={setSelectedDate}
+          selectedDate={selectedDate}
+          isDark={isDark}
+          primaryCalendar={calendarPrimary}
+        />
       </div>
 
-      {/* Selected day items */}
+      {/* Selected Day Details */}
       {selectedDate && (
         <div className="animate-fade-in">
-          <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#94a3b8', marginBottom: 10 }}>
-            رویدادهای {mode === 'jalali' ? toJalaliString(selectedDate) : format(selectedDate, 'MMM dd, yyyy')}
-          </h3>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <h3 style={{ fontSize: '0.92rem', fontWeight: 700, color: '#a78bfa', margin: 0 }}>
+              رویدادهای {toJalaliString(selectedDate)} ({format(selectedDate, 'yyyy/MM/dd')})
+            </h3>
+          </div>
 
           {selectedItems.tasks.length === 0 && selectedItems.events.length === 0 ? (
-            <p style={{ color: '#475569', fontSize: '0.85rem', margin: 0 }}>هیچ رویداد یا تکلیفی برای این روز وجود ندارد.</p>
+            <p style={{ color: '#64748b', fontSize: '0.85rem', margin: 0 }}>هیچ رویداد یا تکلیفی برای این روز وجود ندارد.</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {/* Events */}
