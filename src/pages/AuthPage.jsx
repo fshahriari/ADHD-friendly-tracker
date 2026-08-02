@@ -31,7 +31,7 @@ export default function AuthPage() {
       }
     } catch (err) {
       console.error(err);
-      toast('خطا در ارتباط با سرور. ایمیل یا رمز عبور اشتباه است.', { icon: '❌' });
+      toast(err.message || 'خطا در ارتباط با سرور. ایمیل یا رمز عبور اشتباه است.', { icon: '❌' });
     } finally {
       setLoading(false);
     }
