@@ -2,7 +2,7 @@
 import { settingsDb } from './db';
 
 const DEFAULT_PROXY_URL = import.meta.env.VITE_GEMINI_PROXY_URL || '';
-const DIRECT_GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+const DIRECT_GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 /**
  * Call Gemini 1.5 Flash with resilient failover across primary proxy, backup proxy, and direct API key.
