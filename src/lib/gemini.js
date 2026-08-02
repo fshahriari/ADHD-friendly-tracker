@@ -9,13 +9,13 @@ const DIRECT_GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/mode
  */
 export async function callGemini(userPrompt, systemPrompt, options = {}) {
   const settings = settingsDb.get();
-  const primaryProxy = settings.geminiProxyUrl || DEFAULT_PROXY_URL;
+  const primaryProxy = settings.geminiProxyUrl || 'https://api.groq.com/openai';
   const backupProxy  = settings.backupGeminiProxyUrl || '';
   const directApiKey = settings.directGeminiApiKey || import.meta.env.VITE_GEMINI_API_KEY || '';
 
   const errors = [];
 
-  const aiProvider   = settings.aiProvider || 'gemini';
+  const aiProvider   = settings.aiProvider || 'openai';
 
   // 0. OpenAI Compatible Fallback
   if (aiProvider === 'openai') {

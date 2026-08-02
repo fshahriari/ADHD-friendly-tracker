@@ -67,10 +67,10 @@ export default function SettingsPage() {
 
   const [supaUrl, setSupaUrl]       = useState(settings.supabaseUrl || '');
   const [supaKey, setSupaKey]       = useState(settings.supabaseAnonKey || '');
-  const [proxyUrl, setProxyUrl]     = useState(settings.geminiProxyUrl || '');
+  const [proxyUrl, setProxyUrl]     = useState(settings.geminiProxyUrl || 'https://api.groq.com/openai');
   const [backupUrl, setBackupUrl]   = useState(settings.backupGeminiProxyUrl || '');
   const [directKey, setDirectKey]   = useState(settings.directGeminiApiKey || '');
-  const [aiProvider, setAiProvider] = useState(settings.aiProvider || 'gemini');
+  const [aiProvider, setAiProvider] = useState(settings.aiProvider || 'openai');
   const [openaiModel, setOpenaiModel] = useState(settings.openaiModel || 'llama-3.3-70b-versatile');
   const [useCustomKeys, setUseCustomKeys] = useState(settings.useCustomKeys || false);
 
