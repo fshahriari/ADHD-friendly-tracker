@@ -71,7 +71,7 @@ export default function SettingsPage() {
   const [backupUrl, setBackupUrl]   = useState(settings.backupGeminiProxyUrl || '');
   const [directKey, setDirectKey]   = useState(settings.directGeminiApiKey || '');
   const [aiProvider, setAiProvider] = useState(settings.aiProvider || 'gemini');
-  const [openaiModel, setOpenaiModel] = useState(settings.openaiModel || 'gpt-4o-mini');
+  const [openaiModel, setOpenaiModel] = useState(settings.openaiModel || 'llama-3.3-70b-versatile');
   const [useCustomKeys, setUseCustomKeys] = useState(settings.useCustomKeys || false);
 
   const [focus, setFocus]           = useState(settings.focusDuration || 25);
@@ -298,7 +298,7 @@ export default function SettingsPage() {
             {aiProvider === 'openai' && (
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>نام مدل (Model Name)</label>
-                <input className="input" placeholder="مثال: llama3-8b-8192" dir="ltr"
+                <input className="input" placeholder="مثال: llama-3.3-70b-versatile" dir="ltr"
                   value={openaiModel} onChange={(e) => setOpenaiModel(e.target.value)} onBlur={save} />
               </div>
             )}

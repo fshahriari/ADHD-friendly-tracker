@@ -127,7 +127,7 @@ async function callOpenAIApi(baseUrl, apiKey, userPrompt, systemPrompt, options)
       ...(apiKey && { 'Authorization': `Bearer ${apiKey}` })
     },
     body: JSON.stringify({
-      model: settingsDb.get().openaiModel || 'gpt-4o-mini',
+      model: settingsDb.get().openaiModel || 'llama-3.3-70b-versatile',
       messages,
       temperature: options.temperature ?? 0.7,
       max_tokens: options.maxTokens ?? 2048,
