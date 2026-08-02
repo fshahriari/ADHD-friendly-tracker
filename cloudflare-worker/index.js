@@ -13,11 +13,11 @@
  * Set this as VITE_GEMINI_PROXY_URL in your .env file.
  */
 
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
 
 // ── CORS Headers ──────────────────────────────────────────────────────────
-function corsHeaders(origin) {
-  const allowed = self.ALLOWED_ORIGIN || '*';
+function corsHeaders(origin, env) {
+  const allowed = env.ALLOWED_ORIGIN || '*';
   const allowedOrigin = (allowed === '*') ? origin || '*' : (origin === allowed ? origin : 'null');
   return {
     'Access-Control-Allow-Origin': allowedOrigin,
@@ -28,12 +28,12 @@ function corsHeaders(origin) {
 }
 
 // ── Rate limiting via KV (optional, requires KV binding named RATE_LIMIT) ─
-async function checkRateLimit(clientIp) {
-  if (!self.RATE_LIMIT) return true; // Skip if KV not configured
+async function checkRateLimit(clientIp, env) {
+  if (!env.RATE_LIMIT) return true; // Skip if KV not configured
   const key = `rl:${clientIp}`;
-  const count = parseInt((await self.RATE_LIMIT.get(key)) || '0');
+  const count = parseInt((await env.RATE_LIMIT.get(key)) || '0');
   if (count >= 50) return false; // 50 requests/hour per IP
-  await self.RATE_LIMIT.put(key, String(count + 1), { expirationTtl: 3600 });
+  await env.RATE_LIMIT.put(key, String(count + 1), { expirationTtl: 3600 });
   return true;
 }
 
@@ -44,7 +44,7 @@ export default {
 
     // Handle CORS preflight
     if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: corsHeaders(origin) });
+      return new Response(null, { status: 204, headers: corsHeaders(origin, env) });
     }
 
     // Only allow POST to /api/gemini
@@ -52,24 +52,24 @@ export default {
     if (url.pathname !== '/api/gemini') {
       return new Response(JSON.stringify({ error: 'Not found' }), {
         status: 404,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin, env) },
       });
     }
 
     if (request.method !== 'POST') {
       return new Response(JSON.stringify({ error: 'Method not allowed' }), {
         status: 405,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin, env) },
       });
     }
 
     // Rate limiting
     const clientIp = request.headers.get('CF-Connecting-IP') || 'unknown';
-    const allowed = await checkRateLimit(clientIp);
+    const allowed = await checkRateLimit(clientIp, env);
     if (!allowed) {
       return new Response(JSON.stringify({ error: 'تعداد درخواست‌ها بیش از حد مجاز است. لطفاً یک ساعت صبر کنید.' }), {
         status: 429,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin, env) },
       });
     }
 
@@ -80,7 +80,7 @@ export default {
     } catch {
       return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin, env) },
       });
     }
 
@@ -89,7 +89,7 @@ export default {
     if (!userPrompt) {
       return new Response(JSON.stringify({ error: 'userPrompt is required' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin, env) },
       });
     }
 
@@ -98,7 +98,7 @@ export default {
     if (!apiKey) {
       return new Response(JSON.stringify({ error: 'GEMINI_API_KEY not configured in Worker' }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin, env) },
       });
     }
 
@@ -134,7 +134,7 @@ export default {
     } catch (err) {
       return new Response(JSON.stringify({ error: `خطا در اتصال به Gemini: ${err.message}` }), {
         status: 502,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin, env) },
       });
     }
 
@@ -142,7 +142,7 @@ export default {
       const errText = await geminiResp.text();
       return new Response(JSON.stringify({ error: `Gemini error ${geminiResp.status}: ${errText}` }), {
         status: geminiResp.status,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin) },
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(origin, env) },
       });
     }
 
@@ -156,7 +156,7 @@ export default {
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'no-store',
-        ...corsHeaders(origin),
+        ...corsHeaders(origin, env),
       },
     });
   },
