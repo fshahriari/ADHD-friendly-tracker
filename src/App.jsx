@@ -29,7 +29,11 @@ export default function App() {
   const { load, theme, accentColor } = useSettingsStore();
   const { loadTasks, tasks } = useTaskStore();
   const { loadEvents, events } = useEventStore();
-  const { user } = useAuthStore();
+  const { user, init, loading: authLoading } = useAuthStore();
+
+  useEffect(() => {
+    init();
+  }, [init]);
 
   useEffect(() => {
     if (!user) return; // Don't load data if not logged in
@@ -62,7 +66,24 @@ export default function App() {
       });
     }
 
-    return () => reminderService.stop();
+    // Auto-sync when coming online
+    const handleOnline = async () => {
+      console.log('🔗 Internet reconnected! Syncing local data to Supabase...');
+      // Tasks
+      const localTasks = useTaskStore.getState().tasks;
+      import('./lib/supabase').then(({ supabaseTasks }) => {
+        localTasks.forEach(task => {
+          supabaseTasks.upsert(task).catch(() => {});
+        });
+      });
+      // (Events can be added here if we implement event syncing later)
+    };
+    window.addEventListener('online', handleOnline);
+
+    return () => {
+      reminderService.stop();
+      window.removeEventListener('online', handleOnline);
+    };
   }, [user]);
 
   // Synchronize document theme and accent color
@@ -74,7 +95,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <ToastContainer />
-      {!user ? (
+      {authLoading ? (
+        <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
+          صبر کنید...
+        </div>
+      ) : !user ? (
         <AuthPage />
       ) : (
         <AppShell>

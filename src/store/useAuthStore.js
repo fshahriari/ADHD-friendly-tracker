@@ -1,37 +1,52 @@
 import { create } from 'zustand';
-import pb from '../lib/pb'; // We will create this
+import { supabaseAuth, getSupabaseClient } from '../lib/supabase';
 
-export const useAuthStore = create((set) => ({
-  user: pb.authStore.model,
-  isAdmin: pb.authStore.model?.email === 'its.n04h2005@gmail.com',
+export const useAuthStore = create((set, get) => ({
+  user: null,
+  isAdmin: false,
+  loading: true,
+
+  init: async () => {
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      set({ loading: false });
+      return;
+    }
+
+    // Check active session
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user || null;
+    
+    set({ 
+      user, 
+      isAdmin: user?.email === 'its.n04h2005@gmail.com',
+      loading: false 
+    });
+
+    // Listen for auth changes
+    supabase.auth.onAuthStateChange((_event, session) => {
+      const u = session?.user || null;
+      set({ 
+        user: u, 
+        isAdmin: u?.email === 'its.n04h2005@gmail.com' 
+      });
+    });
+  },
 
   login: async (email, password) => {
-    const authData = await pb.collection('users').authWithPassword(email, password);
-    set({ user: authData.record, isAdmin: authData.record.email === 'its.n04h2005@gmail.com' });
-    return authData;
+    const { data, error } = await supabaseAuth.signIn(email, password);
+    if (error) throw new Error(error.message || error);
+    return data;
   },
 
-  register: async (email, password, passwordConfirm) => {
-    const record = await pb.collection('users').create({
-      email,
-      password,
-      passwordConfirm
-    });
-    // Auto-login after registration
-    const authData = await pb.collection('users').authWithPassword(email, password);
-    set({ user: authData.record, isAdmin: authData.record.email === 'its.n04h2005@gmail.com' });
-    return authData;
+  register: async (email, password) => {
+    const { data, error } = await supabaseAuth.signUp(email, password);
+    if (error) throw new Error(error.message || error);
+    return data;
   },
 
-  logout: () => {
-    pb.authStore.clear();
+  logout: async () => {
+    await supabaseAuth.signOut();
     set({ user: null, isAdmin: false });
   },
-
-  updateUser: () => {
-    set({ 
-      user: pb.authStore.model, 
-      isAdmin: pb.authStore.model?.email === 'its.n04h2005@gmail.com' 
-    });
-  }
 }));

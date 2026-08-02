@@ -3,9 +3,9 @@ import { useSettingsStore } from '../store/useSettingsStore';
 import { useEventStore } from '../store/useEventStore';
 
 import { Button, toast } from '../components/shared';
-import { timerLogDb } from '../lib/db';
+import { timerLogDb, taskDb, eventsDb, coachRulesDb, settingsDb, icalDb } from '../lib/db';
 import { callGemini } from '../lib/gemini';
-import { Save, Moon, Sun, Palette, Server, Shield, Brain, Plus, Trash2, CheckCircle2 } from 'lucide-react';
+import { Save, Moon, Sun, Palette, Server, Shield, Brain, Plus, Trash2, CheckCircle2, Download, Upload } from 'lucide-react';
 
 function Section({ title, icon, children }) {
   return (
@@ -94,6 +94,49 @@ export default function SettingsPage() {
       longBreak,
     });
     toast('تنظیمات ذخیره شد ✅');
+  };
+
+  const handleExport = () => {
+    const data = {
+      settings: settingsDb.get(),
+      tasks: taskDb.getAll(),
+      events: eventsDb.getAll(),
+      timerLogs: timerLogDb.getAll(),
+      coachRules: coachRulesDb.getAll(),
+      icalEvents: icalDb.getAll(),
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `adhd_backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('فایل پشتیبان دانلود شد 💾');
+  };
+
+  const handleImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target.result);
+        if (data.settings) settingsDb.save(data.settings);
+        if (data.tasks) taskDb.saveAll(data.tasks);
+        if (data.events) eventsDb.saveAll(data.events);
+        if (data.timerLogs) timerLogDb.saveAll(data.timerLogs);
+        if (data.coachRules) coachRulesDb.saveAll(data.coachRules);
+        if (data.icalEvents) icalDb.saveAll(data.icalEvents);
+        
+        toast('اطلاعات با موفقیت بازیابی شد! در حال بارگذاری مجدد... ✅');
+        setTimeout(() => window.location.reload(), 1500);
+      } catch (err) {
+        toast('خطا در خواندن فایل پشتیبان ❌', { icon: '⚠️' });
+      }
+    };
+    reader.readAsText(file);
   };
 
   const handleTestAi = async () => {
@@ -302,6 +345,26 @@ export default function SettingsPage() {
           </div>
         </Section>
       )}
+
+      {/* Backup & Restore */}
+      <Section title="پشتیبان‌گیری آفلاین" icon="💾">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            تمام اطلاعات شما به صورت لوکال ذخیره می‌شود. می‌توانید از آن‌ها خروجی بگیرید و یا فایل قبلی را وارد کنید.
+          </p>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <Button variant="outline" size="sm" onClick={handleExport} style={{ display: 'flex', gap: 8 }}>
+              <Download size={16} /> خروجی گرفتن (Export JSON)
+            </Button>
+            <label>
+              <input type="file" accept=".json" style={{ display: 'none' }} onChange={handleImport} />
+              <Button variant="outline" size="sm" as="span" style={{ display: 'flex', gap: 8, cursor: 'pointer' }}>
+                <Upload size={16} /> بازیابی اطلاعات (Import JSON)
+              </Button>
+            </label>
+          </div>
+        </div>
+      </Section>
 
       {/* Save */}
       <Button variant="primary" size="lg" onClick={save} style={{ width: '100%', marginBottom: 24 }}>
