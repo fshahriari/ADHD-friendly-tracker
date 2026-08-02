@@ -82,11 +82,16 @@ html {
   scroll-behavior: smooth;
 }
 
+:root {
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+}
+
 body {
   margin: 0;
   min-height: 100dvh;
   background-color: var(--color-surface-900);
-  color: #e2e8f0;
+  color: var(--text-primary);
   font-size: 16px;
   line-height: 1.6;
   overflow-x: hidden;
@@ -95,9 +100,14 @@ body {
 }
 
 /* ── Light Theme ─────────────────────────────────────────────────────── */
+[data-theme="light"] {
+  --text-primary: #1e1b4b;
+  --text-secondary: #4c4469;
+}
+
 [data-theme="light"] body {
   background-color: var(--color-light-100);
-  color: #1e1b4b;
+  color: var(--text-primary);
 }
 
 [data-theme="light"] .surface {

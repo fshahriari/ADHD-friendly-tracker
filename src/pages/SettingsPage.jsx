@@ -19,11 +19,12 @@ function Section({ title, icon, children }) {
 }
 
 function Row({ label, desc, children }) {
+  const isDark = useSettingsStore((s) => s.theme) === 'dark';
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
       <div>
-        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#e2e8f0' }}>{label}</div>
-        {desc && <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: 2 }}>{desc}</div>}
+        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>{label}</div>
+        {desc && <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: 4 }}>{desc}</div>}
       </div>
       {children}
     </div>
@@ -114,7 +115,7 @@ export default function SettingsPage() {
 
   return (
     <div className="page">
-      <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#e2e8f0', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 8 }}>
+      <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 8 }}>
         ⚙️ تنظیمات
       </h1>
 
@@ -128,7 +129,7 @@ export default function SettingsPage() {
         </Row>
 
         <div>
-          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: isDark ? '#e2e8f0' : '#1e1b4b', marginBottom: 8 }}>رنگ اصلی تم (Accent Theme)</label>
+          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>رنگ اصلی تم (Accent Theme)</label>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             {ACCENT_COLORS.map((c) => {
               const isSel = (settings.accentColor || 'violet') === c.id;
@@ -165,8 +166,8 @@ export default function SettingsPage() {
                   style={{
                     padding: '6px 16px', borderRadius: 8, border: 'none', cursor: 'pointer',
                     fontFamily: 'inherit', fontWeight: 700, fontSize: '0.85rem', transition: 'all 150ms',
-                    background: active ? 'rgba(139,92,246,0.35)' : 'transparent',
-                    color: active ? '#a78bfa' : '#64748b',
+                    background: active ? 'var(--accent-color)' : 'transparent',
+                    color: active ? '#ffffff' : 'var(--text-secondary)',
                   }}>{o.l}</button>
               );
             })}
@@ -174,16 +175,15 @@ export default function SettingsPage() {
         </Row>
       </Section>
 
-      {/* AI Coach Preferences & Rules */}
       <Section title="حافظه و قوانین دستیار ADHD" icon="🧠">
-        <p style={{ fontSize: '0.8rem', color: isDark ? '#94a3b8' : '#4c4469', margin: 0 }}>
+        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
           دستیار هوش مصنوعی هنگام بررسی متن شما، این قوانین را به عنوان ترجیح شما در نظر می‌گیرد و یادآوری‌ها را بر این اساس تنظیم می‌کند.
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
           {coachRules.map((rule) => (
             <div key={rule.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: 'rgba(139,92,246,0.1)', borderRadius: 10, border: '1px solid rgba(139,92,246,0.2)' }}>
-              <span style={{ fontSize: '0.83rem', color: isDark ? '#e2e8f0' : '#1e1b4b', fontWeight: isDark ? 400 : 500 }}>📌 {rule.rule}</span>
+              <span style={{ fontSize: '0.83rem', color: 'var(--text-primary)' }}>📌 {rule.rule}</span>
               <button onClick={() => deleteCoachRule(rule.id)} className="btn btn-icon btn-ghost btn-sm" style={{ color: '#fb7185' }}>
                 <Trash2 size={14} />
               </button>
@@ -209,19 +209,19 @@ export default function SettingsPage() {
         </div>
 
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: isDark ? '#94a3b8' : '#4c4469', fontWeight: isDark ? 400 : 600, marginBottom: 6 }}>آدرس پروکسی اصلی (Cloudflare Worker)</label>
+          <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>آدرس پروکسی اصلی (Cloudflare Worker)</label>
           <input className="input" placeholder="https://my-worker.workers.dev" dir="ltr"
             value={proxyUrl} onChange={(e) => setProxyUrl(e.target.value)} />
         </div>
 
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: isDark ? '#94a3b8' : '#4c4469', fontWeight: isDark ? 400 : 600, marginBottom: 6 }}>آدرس پروکسی پشتیبان (آدرس دوم / سرور رزرو)</label>
+          <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>آدرس پروکسی پشتیبان (آدرس دوم / سرور رزرو)</label>
           <input className="input" placeholder="https://backup-worker.workers.dev" dir="ltr"
             value={backupUrl} onChange={(e) => setBackupUrl(e.target.value)} />
         </div>
 
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: isDark ? '#94a3b8' : '#4c4469', fontWeight: isDark ? 400 : 600, marginBottom: 6 }}>کلید مستقیم Gemini API (در صورت اتصال مستقیم بدون VPN)</label>
+          <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>کلید مستقیم Gemini API (در صورت اتصال مستقیم بدون VPN)</label>
           <input className="input" placeholder="AIzaSy..." dir="ltr" type="password"
             value={directKey} onChange={(e) => setDirectKey(e.target.value)} />
         </div>
@@ -249,12 +249,12 @@ export default function SettingsPage() {
       {/* Supabase Config */}
       <Section title="پایگاه داده ابری (Supabase)" icon="☁️">
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: isDark ? '#94a3b8' : '#4c4469', fontWeight: isDark ? 400 : 600, marginBottom: 6 }}>Supabase URL</label>
+          <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>Supabase URL</label>
           <input className="input" placeholder="https://xxx.supabase.co" dir="ltr"
             value={supaUrl} onChange={(e) => setSupaUrl(e.target.value)} />
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: '0.8rem', color: isDark ? '#94a3b8' : '#4c4469', fontWeight: isDark ? 400 : 600, marginBottom: 6 }}>Supabase Anon Key</label>
+          <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>Supabase Anon Key</label>
           <input className="input" placeholder="eyJhbGciOiJI..." dir="ltr" type="password"
             value={supaKey} onChange={(e) => setSupaKey(e.target.value)} />
         </div>
