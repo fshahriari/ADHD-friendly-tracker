@@ -122,7 +122,7 @@ export default function TaskCard({ task, onEdit }) {
         <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
           {!task.completed && (
             <button onClick={() => startFocus(task.id, task.estimatedMinutes)}
-              className="btn btn-icon btn-sm" style={{ color: '#a78bfa', background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)' }}
+              className="btn btn-icon btn-sm" style={{ color: '#a78bfa', background: 'rgba(var(--accent-glow-rgb),0.1)', border: '1px solid rgba(var(--accent-glow-rgb),0.2)' }}
               title="شروع تمرکز" aria-label="شروع حالت تمرکز">
               <Play size={14} />
             </button>

@@ -26,10 +26,10 @@ function EnergySelector() {
           style={{
             flex: 1, minWidth: 90, padding: '12px 8px', borderRadius: 12, border: '1.5px solid',
             cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', transition: 'all 150ms',
-            background: energyLevel === o.v ? 'rgba(109, 40, 217, 0.25)' : 'transparent',
-            borderColor: energyLevel === o.v ? '#8b5cf6' : '#2f2258',
+            background: energyLevel === o.v ? 'rgba(var(--accent-glow-rgb), 0.25)' : 'transparent',
+            borderColor: energyLevel === o.v ? 'var(--color-primary-500)' : '#2f2258',
             color: energyLevel === o.v ? 'var(--text-primary)' : 'var(--text-muted)',
-            boxShadow: energyLevel === o.v ? '0 2px 10px rgba(109,40,217,0.2)' : 'none',
+            boxShadow: energyLevel === o.v ? '0 2px 10px rgba(var(--accent-glow-rgb),0.2)' : 'none',
           }}>
           <div style={{ fontSize: '1.4rem', marginBottom: 4 }}>{o.icon}</div>
           <div style={{ fontSize: '0.8rem', fontWeight: 700 }}>{o.label}</div>
@@ -50,7 +50,7 @@ function StatsBar({ tasks }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
       {[
-        { label: 'کل', value: total, color: '#8b5cf6' },
+        { label: 'کل', value: total, color: 'var(--color-primary-500)' },
         { label: 'تمام‌شده', value: done, color: '#34d399' },
         { label: 'امروز', value: today, color: '#f59e0b' },
         { label: '% پیشرفت', value: `${pct}%`, color: '#0ea5e9' },
@@ -132,8 +132,8 @@ export default function Dashboard() {
 
       {/* Focus now hero */}
       {topTask && timerState === TIMER_STATES.IDLE && (
-        <div className="surface-glass animate-slide-up" style={{ padding: '16px 20px', marginBottom: 20, borderColor: 'rgba(139,92,246,0.3)' }}>
-          <div style={{ fontSize: '0.75rem', color: '#8b5cf6', fontWeight: 700, marginBottom: 6 }}>🎯 مهم‌ترین وظیفه الان</div>
+        <div className="surface-glass animate-slide-up" style={{ padding: '16px 20px', marginBottom: 20, borderColor: 'rgba(var(--accent-glow-rgb),0.3)' }}>
+          <div style={{ fontSize: '0.75rem', color: 'var(--color-primary-500)', fontWeight: 700, marginBottom: 6 }}>🎯 مهم‌ترین وظیفه الان</div>
           <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>{topTask.title}</div>
           <Button variant="primary" onClick={() => { startFocus(topTask.id, topTask.estimatedMinutes); navigate('/focus'); }}>
             <Focus size={16} /> شروع تمرکز

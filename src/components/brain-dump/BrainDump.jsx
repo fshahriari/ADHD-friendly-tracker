@@ -49,19 +49,19 @@ export default function BrainDump() {
 
     // Capture the exact text when recording starts to avoid duplicating phrases
     const originalText = text.trim() ? text.trim() + ' ' : '';
-    let finalTranscript = '';
 
     recognition.onresult = (e) => {
-      let interim = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
+      let finalStr = '';
+      let interimStr = '';
+      for (let i = 0; i < e.results.length; i++) {
         if (e.results[i].isFinal) {
-          finalTranscript += e.results[i][0].transcript + ' ';
+          finalStr += e.results[i][0].transcript + ' ';
         } else {
-          interim += e.results[i][0].transcript;
+          interimStr += e.results[i][0].transcript;
         }
       }
       // Always rebuild from original text + all finalized speech + current interim
-      setText(originalText + finalTranscript + (interim ? `[🎙️ ${interim}]` : ''));
+      setText(originalText + finalStr + (interimStr ? `[🎙️ ${interimStr}]` : ''));
     };
 
     recognition.onend = () => {
@@ -161,7 +161,7 @@ export default function BrainDump() {
         />
 
         {/* Action bar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(139,92,246,0.15)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(var(--accent-glow-rgb),0.15)' }}>
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={toggleVoice}
@@ -186,14 +186,14 @@ export default function BrainDump() {
 
       {/* AI Interactive Proposal Modal / Pop-up */}
       {proposal && (
-        <div className="surface-glass animate-scale-up" style={{ padding: 20, borderColor: '#8b5cf6', boxShadow: '0 8px 30px rgba(109,40,217,0.3)' }}>
+        <div className="surface-glass animate-scale-up" style={{ padding: 20, borderColor: 'var(--color-primary-500)', boxShadow: '0 8px 30px rgba(var(--accent-glow-rgb),0.3)' }}>
           {/* Coach Message */}
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 16 }}>
             <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, #6d28d9, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', flexShrink: 0 }}>
               🤖
             </div>
             <div>
-              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#8b5cf6', marginBottom: 2 }}>پاسخ کوچ ADHD</div>
+              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-primary-500)', marginBottom: 2 }}>پاسخ کوچ ADHD</div>
               <p style={{ margin: 0, fontSize: '0.9rem', color: '#e2e8f0', lineHeight: 1.6 }}>{proposal.coachMessage}</p>
             </div>
           </div>
@@ -223,11 +223,11 @@ export default function BrainDump() {
                     }}
                     style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px',
-                      borderRadius: 10, border: `1.5px solid ${isChecked ? '#8b5cf6' : 'rgba(100,116,139,0.2)'}`,
-                      background: isChecked ? 'rgba(139,92,246,0.15)' : 'rgba(15,10,30,0.3)', cursor: 'pointer',
+                      borderRadius: 10, border: `1.5px solid ${isChecked ? 'var(--color-primary-500)' : 'rgba(100,116,139,0.2)'}`,
+                      background: isChecked ? 'rgba(var(--accent-glow-rgb),0.15)' : 'rgba(15,10,30,0.3)', cursor: 'pointer',
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{ width: 18, height: 18, borderRadius: 5, border: '1.5px solid #8b5cf6', display: 'flex', alignItems: 'center', justifyContent: 'center', background: isChecked ? '#8b5cf6' : 'transparent' }}>
+                        <div style={{ width: 18, height: 18, borderRadius: 5, border: '1.5px solid #8b5cf6', display: 'flex', alignItems: 'center', justifyContent: 'center', background: isChecked ? 'var(--color-primary-500)' : 'transparent' }}>
                           {isChecked && <Check size={12} color="white" />}
                         </div>
                         <div>

@@ -19,13 +19,13 @@ function TimerRing({ progress, displayTime, state, sessionCount }) {
   const offset = circumference * (1 - progress);
 
   const colors = {
-    [TIMER_STATES.RUNNING]: '#8b5cf6',
+    [TIMER_STATES.RUNNING]: 'var(--color-primary-500)',
     [TIMER_STATES.PAUSED]:  '#f59e0b',
     [TIMER_STATES.BREAK]:   '#34d399',
     [TIMER_STATES.DONE]:    '#34d399',
     [TIMER_STATES.IDLE]:    isDark ? '#2f2258' : '#6d28d9',
   };
-  const strokeColor = colors[state] || '#8b5cf6';
+  const strokeColor = colors[state] || 'var(--color-primary-500)';
 
   return (
     <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -112,7 +112,7 @@ export default function FocusMode() {
       didFireConfetti.current = true;
       confetti({
         particleCount: 120, spread: 80, origin: { y: 0.6 },
-        colors: ['#8b5cf6', '#34d399', '#fbbf24', '#fb7185', '#6366f1'],
+        colors: ['var(--color-primary-500)', '#34d399', '#fbbf24', '#fb7185', '#6366f1'],
       });
       setTimeout(() => confetti({ particleCount: 60, angle: 60, spread: 55, origin: { x: 0 } }), 200);
       setTimeout(() => confetti({ particleCount: 60, angle: 120, spread: 55, origin: { x: 1 } }), 400);
@@ -135,7 +135,7 @@ export default function FocusMode() {
     <div style={{
       minHeight: '85dvh', display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center', gap: 28, padding: '24px 16px',
-      background: 'radial-gradient(ellipse at center, rgba(109,40,217,0.08) 0%, transparent 70%)',
+      background: 'radial-gradient(ellipse at center, rgba(var(--accent-glow-rgb),0.08) 0%, transparent 70%)',
     }}>
       {/* Task info */}
       {task ? (

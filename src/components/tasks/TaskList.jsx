@@ -85,8 +85,8 @@ export default function TaskList() {
                 padding: '5px 14px', borderRadius: 20, border: '1.5px solid',
                 cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.8rem', fontWeight: 600,
                 transition: 'all 150ms',
-                background: energyFilter === opt.value ? 'rgba(139,92,246,0.2)' : 'transparent',
-                borderColor: energyFilter === opt.value ? '#8b5cf6' : '#2f2258',
+                background: energyFilter === opt.value ? 'rgba(var(--accent-glow-rgb),0.2)' : 'transparent',
+                borderColor: energyFilter === opt.value ? 'var(--color-primary-500)' : '#2f2258',
                 color: energyFilter === opt.value ? '#a78bfa' : '#64748b',
               }}>
               {opt.icon} {opt.label}
@@ -128,7 +128,7 @@ export default function TaskList() {
 
           <DragOverlay>
             {activeTask && (
-              <div style={{ opacity: 0.9, transform: 'rotate(2deg)', boxShadow: '0 20px 60px rgba(109,40,217,0.4)' }}>
+              <div style={{ opacity: 0.9, transform: 'rotate(2deg)', boxShadow: '0 20px 60px rgba(var(--accent-glow-rgb),0.4)' }}>
                 <TaskCard task={activeTask} onEdit={() => {}} />
               </div>
             )}

@@ -38,7 +38,7 @@ function Toggle({ value, onChange }) {
         width: 48, height: 26, borderRadius: 13, border: 'none', cursor: 'pointer',
         background: value ? 'linear-gradient(135deg, #6d28d9, #8b5cf6)' : '#1a1130',
         position: 'relative', transition: 'background 250ms', flexShrink: 0,
-        boxShadow: value ? '0 0 10px rgba(109,40,217,0.4)' : 'none',
+        boxShadow: value ? '0 0 10px rgba(var(--accent-glow-rgb),0.4)' : 'none',
       }}>
       <span style={{
         position: 'absolute', top: 3, left: value ? 25 : 3,
@@ -50,7 +50,7 @@ function Toggle({ value, onChange }) {
 }
 
 const ACCENT_COLORS = [
-  { id: 'violet', label: 'بنفش تمرکز', color: '#8b5cf6' },
+  { id: 'violet', label: 'بنفش تمرکز', color: 'var(--color-primary-500)' },
   { id: 'emerald', label: 'زمردی دوپامین', color: '#10b981' },
   { id: 'cyan', label: 'آبی اقیانوس', color: '#0ea5e9' },
   { id: 'rose', label: 'رز انرژی', color: '#f43f5e' },
@@ -137,8 +137,8 @@ export default function SettingsPage() {
                 <button key={c.id} onClick={() => settings.setAccentColor(c.id)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 10,
-                    border: `2px solid ${isSel ? c.color : (isDark ? 'transparent' : 'rgba(109,40,217,0.15)')}`,
-                    background: isSel ? (isDark ? 'rgba(139,92,246,0.25)' : '#ffffff') : (isDark ? 'rgba(15,10,30,0.4)' : '#ffffff'),
+                    border: `2px solid ${isSel ? c.color : (isDark ? 'transparent' : 'rgba(var(--accent-glow-rgb),0.15)')}`,
+                    background: isSel ? (isDark ? 'rgba(var(--accent-glow-rgb),0.25)' : '#ffffff') : (isDark ? 'rgba(15,10,30,0.4)' : '#ffffff'),
                     boxShadow: isSel ? `0 2px 10px ${c.color}50` : 'none',
                     cursor: 'pointer', fontFamily: 'inherit',
                     color: isDark ? '#e2e8f0' : '#1e1b4b',
@@ -182,7 +182,7 @@ export default function SettingsPage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
           {coachRules.map((rule) => (
-            <div key={rule.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: 'rgba(139,92,246,0.1)', borderRadius: 10, border: '1px solid rgba(139,92,246,0.2)' }}>
+            <div key={rule.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: 'rgba(var(--accent-glow-rgb),0.1)', borderRadius: 10, border: '1px solid rgba(var(--accent-glow-rgb),0.2)' }}>
               <span style={{ fontSize: '0.83rem', color: 'var(--text-primary)' }}>📌 {rule.rule}</span>
               <button onClick={() => deleteCoachRule(rule.id)} className="btn btn-icon btn-ghost btn-sm" style={{ color: '#fb7185' }}>
                 <Trash2 size={14} />
@@ -266,7 +266,7 @@ export default function SettingsPage() {
       </Button>
 
       <div style={{ textAlign: 'center', padding: '4px 0 8px' }}>
-        <p style={{ fontSize: '0.8rem', fontWeight: 700, color: '#8b5cf6', margin: '0 0 4px' }}>
+        <p style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-primary-500)', margin: '0 0 4px' }}>
           ساخته شده با ❤️ برای ADHD‌های خفن
         </p>
         <p style={{ fontSize: '0.72rem', color: '#64748b', margin: 0 }}>

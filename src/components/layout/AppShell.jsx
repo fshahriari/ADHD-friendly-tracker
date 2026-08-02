@@ -51,12 +51,12 @@ function Sidebar() {
     <aside style={{
       width: 220, height: '100dvh', position: 'sticky', top: 0,
       background: isDark ? 'rgba(10,7,20,0.95)' : '#ede9fe',
-      borderLeft: `1px solid ${isDark ? '#1a1130' : 'rgba(109,40,217,0.18)'}`,
+      borderLeft: `1px solid ${isDark ? '#1a1130' : 'rgba(var(--accent-glow-rgb),0.18)'}`,
       display: 'flex', flexDirection: 'column', padding: '24px 0',
       transition: 'background 250ms ease, border-color 250ms ease',
     }}>
       {/* Logo */}
-      <div style={{ padding: '0 20px 24px', borderBottom: `1px solid ${isDark ? '#1a1130' : 'rgba(109,40,217,0.15)'}` }}>
+      <div style={{ padding: '0 20px 24px', borderBottom: `1px solid ${isDark ? '#1a1130' : 'rgba(var(--accent-glow-rgb),0.15)'}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #6d28d9, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
             🎯
@@ -77,12 +77,12 @@ function Sidebar() {
               borderRadius: 10, textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem',
               transition: 'all 150ms',
               background: isActive
-                ? (isDark ? 'rgba(139,92,246,0.15)' : 'rgba(109,40,217,0.12)')
+                ? (isDark ? 'rgba(var(--accent-glow-rgb),0.15)' : 'rgba(var(--accent-glow-rgb),0.12)')
                 : 'transparent',
               color: isActive
                 ? (isDark ? '#a78bfa' : '#6d28d9')
                 : (isDark ? '#64748b' : '#4c4469'),
-              border: `1px solid ${isActive ? 'rgba(109,40,217,0.3)' : 'transparent'}`,
+              border: `1px solid ${isActive ? 'rgba(var(--accent-glow-rgb),0.3)' : 'transparent'}`,
             })}>
             {to === '/focus' && isTimerRunning
               ? <><Timer size={18} color="#34d399" />{label}<span style={{ fontSize: '0.72rem', color: '#34d399', marginRight: 'auto' }}>{getDisplayTime()}</span></>
@@ -93,9 +93,9 @@ function Sidebar() {
       </nav>
 
       {/* Bottom: theme toggle */}
-      <div style={{ padding: '16px 10px', borderTop: `1px solid ${isDark ? '#1a1130' : 'rgba(109,40,217,0.15)'}` }}>
+      <div style={{ padding: '16px 10px', borderTop: `1px solid ${isDark ? '#1a1130' : 'rgba(var(--accent-glow-rgb),0.15)'}` }}>
         <button onClick={toggleTheme}
-          style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10, border: `1px solid ${isDark ? '#1a1130' : 'rgba(109,40,217,0.2)'}`, background: 'transparent', cursor: 'pointer', fontFamily: 'inherit', color: isDark ? '#64748b' : '#4c4469', fontSize: '0.85rem', fontWeight: 600, transition: 'all 150ms' }}>
+          style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10, border: `1px solid ${isDark ? '#1a1130' : 'rgba(var(--accent-glow-rgb),0.2)'}`, background: 'transparent', cursor: 'pointer', fontFamily: 'inherit', color: isDark ? '#64748b' : '#4c4469', fontSize: '0.85rem', fontWeight: 600, transition: 'all 150ms' }}>
           {theme === 'dark' ? '☀️ حالت روشن' : '🌙 حالت تاریک'}
         </button>
       </div>

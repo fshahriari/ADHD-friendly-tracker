@@ -80,8 +80,8 @@ export default function TaskForm({ open, onClose, initial = null }) {
                   padding: '6px 14px', borderRadius: 20, border: '1.5px solid',
                   cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.82rem', fontWeight: 600,
                   transition: 'all 150ms',
-                  background: form.category === c.value ? 'rgba(139,92,246,0.2)' : 'transparent',
-                  borderColor: form.category === c.value ? '#8b5cf6' : '#2f2258',
+                  background: form.category === c.value ? 'rgba(var(--accent-glow-rgb),0.2)' : 'transparent',
+                  borderColor: form.category === c.value ? 'var(--color-primary-500)' : '#2f2258',
                   color: form.category === c.value ? '#a78bfa' : '#64748b',
                 }}>
                 {c.icon} {c.label}

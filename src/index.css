@@ -90,7 +90,7 @@ html {
 body {
   margin: 0;
   min-height: 100dvh;
-  background-color: var(--color-surface-900);
+  background-color: var(--bg-page-dark, var(--color-surface-900));
   color: var(--text-primary);
   font-size: 16px;
   line-height: 1.6;
@@ -106,7 +106,7 @@ body {
 }
 
 [data-theme="light"] body {
-  background-color: var(--color-light-100);
+  background-color: var(--bg-page-light, var(--color-light-100));
   color: var(--text-primary);
 }
 
@@ -149,103 +149,159 @@ body {
   color: #4c4469;
 }
 [data-theme="light"] .nav-item.active {
-  color: #6d28d9;
-  background: rgba(109, 40, 217, 0.1);
+  color: var(--color-primary-700);
+  background: rgba(var(--accent-glow-rgb), 0.15);
 }
 [data-theme="light"] .nav-item:hover:not(.active) {
-  color: #1e1b4b;
-  background: rgba(109, 40, 217, 0.06);
+  color: var(--text-primary);
+  background: rgba(var(--accent-glow-rgb), 0.08);
 }
 
 /* Bottom nav */
 [data-theme="light"] .bottom-nav {
-  background: rgba(245, 240, 255, 0.95);
-  border-top-color: rgba(109, 40, 217, 0.15);
+  background: var(--bg-page-light, rgba(245, 240, 255, 0.95));
+  border-top-color: rgba(var(--accent-glow-rgb), 0.15);
 }
 
 /* ── Accent Color Palettes ───────────────────────────────────────────── */
+/* ── Accent Color Palettes ───────────────────────────────────────────── */
 [data-accent="violet"] {
+  --color-primary-50:  #f5f3ff;
+  --color-primary-100: #ede9fe;
+  --color-primary-200: #ddd6fe;
+  --color-primary-300: #c4b5fd;
   --color-primary-400: #a78bfa;
   --color-primary-500: #8b5cf6;
   --color-primary-600: #7c3aed;
   --color-primary-700: #6d28d9;
   --color-primary-800: #5b21b6;
+  --color-primary-900: #4c1d95;
+  --color-primary-950: #2e1065;
   --accent-glow-rgb: 139, 92, 246;
+
+  --bg-sidebar-light: #e2d9f8;
+  --bg-page-light: #f5f0ff;
+  --bg-sidebar-dark: #120c24;
+  --bg-page-dark: #0f0a1e;
 }
 
 [data-accent="emerald"] {
+  --color-primary-50:  #ecfdf5;
+  --color-primary-100: #d1fae5;
+  --color-primary-200: #a7f3d0;
+  --color-primary-300: #6ee7b7;
   --color-primary-400: #34d399;
   --color-primary-500: #10b981;
   --color-primary-600: #059669;
   --color-primary-700: #047857;
   --color-primary-800: #065f46;
+  --color-primary-900: #064e3b;
+  --color-primary-950: #022c22;
   --accent-glow-rgb: 16, 185, 129;
+
+  --bg-sidebar-light: #d1fae5;
+  --bg-page-light: #ecfdf5;
+  --bg-sidebar-dark: #06261a;
+  --bg-page-dark: #021a11;
 }
 
 [data-accent="cyan"] {
+  --color-primary-50:  #f0f9ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
   --color-primary-400: #38bdf8;
   --color-primary-500: #0ea5e9;
   --color-primary-600: #0284c7;
   --color-primary-700: #0369a1;
   --color-primary-800: #075985;
+  --color-primary-900: #0c4a6e;
+  --color-primary-950: #082f49;
   --accent-glow-rgb: 14, 165, 233;
+
+  --bg-sidebar-light: #e0f2fe;
+  --bg-page-light: #f0f9ff;
+  --bg-sidebar-dark: #052236;
+  --bg-page-dark: #031826;
 }
 
 [data-accent="rose"] {
+  --color-primary-50:  #fff1f2;
+  --color-primary-100: #ffe4e6;
+  --color-primary-200: #fecdd3;
+  --color-primary-300: #fda4af;
   --color-primary-400: #fb7185;
   --color-primary-500: #f43f5e;
   --color-primary-600: #e11d48;
   --color-primary-700: #be123c;
   --color-primary-800: #9f1239;
+  --color-primary-900: #881337;
+  --color-primary-950: #4c0519;
   --accent-glow-rgb: 244, 63, 94;
+
+  --bg-sidebar-light: #ffe4e6;
+  --bg-page-light: #fff1f2;
+  --bg-sidebar-dark: #3a0a19;
+  --bg-page-dark: #2a0510;
 }
 
 [data-accent="amber"] {
+  --color-primary-50:  #fffbeb;
+  --color-primary-100: #fef3c7;
+  --color-primary-200: #fde68a;
+  --color-primary-300: #fcd34d;
   --color-primary-400: #fbbf24;
   --color-primary-500: #f59e0b;
   --color-primary-600: #d97706;
   --color-primary-700: #b45309;
   --color-primary-800: #92400e;
+  --color-primary-900: #78350f;
+  --color-primary-950: #451a03;
   --accent-glow-rgb: 245, 158, 11;
+
+  --bg-sidebar-light: #fef3c7;
+  --bg-page-light: #fffbeb;
+  --bg-sidebar-dark: #2d1808;
+  --bg-page-dark: #1f1004;
 }
 
 /* ── Light Mode: Sidebar ─────────────────────────────────────────────── */
 [data-theme="light"] aside {
-  background: #e2d9f8 !important;          /* soft warm lavender — eye-friendly */
-  border-left-color: rgba(109,40,217,0.18) !important;
+  background: var(--bg-sidebar-light, #e2d9f8) !important;
+  border-left-color: rgba(var(--accent-glow-rgb), 0.18) !important;
 }
 
 [data-theme="light"] aside .nav-link,
 [data-theme="light"] aside a {
-  color: #4c4469;
+  color: var(--text-primary);
 }
 
 /* Sidebar logo area border */
 [data-theme="light"] aside [style*="border-bottom"] {
-  border-bottom-color: rgba(109,40,217,0.15) !important;
+  border-bottom-color: rgba(var(--accent-glow-rgb), 0.15) !important;
 }
 
 /* Sidebar bottom border */
 [data-theme="light"] aside [style*="border-top"] {
-  border-top-color: rgba(109,40,217,0.15) !important;
+  border-top-color: rgba(var(--accent-glow-rgb), 0.15) !important;
 }
 
 /* Sidebar theme toggle button */
 [data-theme="light"] aside button {
-  color: #4c4469 !important;
-  border-color: rgba(109,40,217,0.2) !important;
+  color: var(--text-primary) !important;
+  border-color: rgba(var(--accent-glow-rgb), 0.2) !important;
 }
 [data-theme="light"] aside button:hover {
-  background: rgba(109,40,217,0.08) !important;
+  background: rgba(var(--accent-glow-rgb), 0.08) !important;
 }
 
 /* ── Light Mode: Date Toggle Pills ───────────────────────────────────── */
 [data-theme="light"] .date-toggle-container {
-  background: #e4dcfc !important;
-  border-color: rgba(109, 40, 217, 0.25) !important;
+  background: var(--bg-sidebar-light, #e4dcfc) !important;
+  border-color: rgba(var(--accent-glow-rgb), 0.25) !important;
 }
 [data-theme="light"] .date-toggle-btn {
-  color: #4c4469 !important;
+  color: var(--text-primary) !important;
 }
 [data-theme="light"] .date-toggle-btn.active {
   background: var(--color-primary-600) !important;
@@ -256,7 +312,7 @@ body {
 /* ── Light Mode: Inputs ──────────────────────────────────────────────── */
 [data-theme="light"] .input {
   background: #ffffff;
-  border-color: #c4b5fd;
+  border-color: var(--color-primary-300);
   color: #1e1b4b;
 }
 [data-theme="light"] .input::placeholder {
@@ -280,7 +336,7 @@ body {
 
 /* ── Light Mode: Buttons ─────────────────────────────────────────────── */
 [data-theme="light"] .btn-ghost {
-  border-color: #c4b5fd;
+  border-color: var(--color-primary-300);
   color: #4c4469;
   background: transparent;
 }
@@ -633,7 +689,7 @@ textarea.input { resize: vertical; min-height: 120px; line-height: 1.7; }
 
 /* ── Progress Ring ────────────────────────────────────────────────────── */
 .progress-ring-track { fill: none; stroke: var(--color-surface-700); }
-[data-theme="light"] .progress-ring-track { stroke: #c4b5fd; }
+[data-theme="light"] .progress-ring-track { stroke: var(--color-primary-300); }
 .progress-ring-fill {
   fill: none;
   stroke: var(--color-primary-500);

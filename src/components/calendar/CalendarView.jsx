@@ -105,8 +105,8 @@ function AddEventModal({ open, onClose, defaultDate }) {
                   style={{
                     padding: '6px 12px', borderRadius: 8, border: '1.5px solid',
                     cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.78rem', fontWeight: 600,
-                    borderColor: active ? '#8b5cf6' : '#2f2258',
-                    background: active ? 'rgba(139,92,246,0.2)' : 'transparent',
+                    borderColor: active ? 'var(--color-primary-500)' : '#2f2258',
+                    background: active ? 'rgba(var(--accent-glow-rgb),0.2)' : 'transparent',
                     color: active ? '#a78bfa' : '#64748b',
                   }}>
                   <Bell size={12} style={{ display: 'inline', marginLeft: 4 }} />
@@ -257,8 +257,8 @@ function DualCalendarGrid({ currentDate, tasks, events, onDayClick, selectedDate
               style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justify: 'center', gap: 1, padding: '6px 2px', borderRadius: 10, cursor: 'pointer',
-                border: `1.5px solid ${isSel ? '#8b5cf6' : isToday ? 'rgba(139,92,246,0.5)' : 'transparent'}`,
-                background: isSel ? 'rgba(139,92,246,0.22)' : isToday ? 'rgba(139,92,246,0.1)' : 'transparent',
+                border: `1.5px solid ${isSel ? 'var(--color-primary-500)' : isToday ? 'rgba(var(--accent-glow-rgb),0.5)' : 'transparent'}`,
+                background: isSel ? 'rgba(var(--accent-glow-rgb),0.22)' : isToday ? 'rgba(var(--accent-glow-rgb),0.1)' : 'transparent',
                 color: isToday ? '#a78bfa' : textMuted,
                 fontFamily: 'inherit', transition: 'all 150ms',
               }}>
@@ -275,7 +275,7 @@ function DualCalendarGrid({ currentDate, tasks, events, onDayClick, selectedDate
               {/* Event & Task indicator dots */}
               <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center', minHeight: 6, marginTop: 2 }}>
                 {tList.slice(0, 2).map((t, i) => (
-                  <span key={`t${i}`} style={{ width: 4, height: 4, borderRadius: '50%', background: CAT_COLOR[t.category] || '#8b5cf6' }} />
+                  <span key={`t${i}`} style={{ width: 4, height: 4, borderRadius: '50%', background: CAT_COLOR[t.category] || 'var(--color-primary-500)' }} />
                 ))}
                 {eList.slice(0, 2).map((e, i) => (
                   <span key={`e${i}`} style={{ width: 4, height: 4, borderRadius: 1, background: '#34d399' }} />
@@ -395,7 +395,7 @@ export default function CalendarView() {
 
               {/* Tasks */}
               {selectedItems.tasks.map((t) => (
-                <div key={t.id} className="surface" style={{ padding: '10px 14px', borderRight: `3px solid ${CAT_COLOR[t.category] || '#8b5cf6'}` }}>
+                <div key={t.id} className="surface" style={{ padding: '10px 14px', borderRight: `3px solid ${CAT_COLOR[t.category] || 'var(--color-primary-500)'}` }}>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                     <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)', flex: 1 }}>📋 {t.title}</span>
                     <span style={{ fontSize: '0.72rem', background: `${CAT_COLOR[t.category]}20`, color: CAT_COLOR[t.category], padding: '2px 8px', borderRadius: 20 }}>
