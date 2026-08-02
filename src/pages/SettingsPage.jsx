@@ -211,19 +211,19 @@ export default function SettingsPage() {
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>آدرس پروکسی اصلی (Cloudflare Worker)</label>
           <input className="input" placeholder="https://my-worker.workers.dev" dir="ltr"
-            value={proxyUrl} onChange={(e) => setProxyUrl(e.target.value)} />
+            value={proxyUrl} onChange={(e) => setProxyUrl(e.target.value)} onBlur={save} />
         </div>
 
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>آدرس پروکسی پشتیبان (آدرس دوم / سرور رزرو)</label>
           <input className="input" placeholder="https://backup-worker.workers.dev" dir="ltr"
-            value={backupUrl} onChange={(e) => setBackupUrl(e.target.value)} />
+            value={backupUrl} onChange={(e) => setBackupUrl(e.target.value)} onBlur={save} />
         </div>
 
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>کلید مستقیم Gemini API (در صورت اتصال مستقیم بدون VPN)</label>
           <input className="input" placeholder="AIzaSy..." dir="ltr" type="password"
-            value={directKey} onChange={(e) => setDirectKey(e.target.value)} />
+            value={directKey} onChange={(e) => setDirectKey(e.target.value)} onBlur={save} />
         </div>
 
         <Button variant="ghost" size="sm" onClick={handleTestAi} disabled={testingAi} style={{ width: 'fit-content' }}>
@@ -241,6 +241,7 @@ export default function SettingsPage() {
           <Row key={f.label} label={f.label}>
             <input type="number" min={f.min} max={f.max} value={f.value}
               onChange={(e) => f.set(parseInt(e.target.value) || f.min)}
+              onBlur={save}
               className="input" style={{ width: 80, textAlign: 'center' }} />
           </Row>
         ))}
@@ -251,12 +252,12 @@ export default function SettingsPage() {
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>Supabase URL</label>
           <input className="input" placeholder="https://xxx.supabase.co" dir="ltr"
-            value={supaUrl} onChange={(e) => setSupaUrl(e.target.value)} />
+            value={supaUrl} onChange={(e) => setSupaUrl(e.target.value)} onBlur={save} />
         </div>
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>Supabase Anon Key</label>
           <input className="input" placeholder="eyJhbGciOiJI..." dir="ltr" type="password"
-            value={supaKey} onChange={(e) => setSupaKey(e.target.value)} />
+            value={supaKey} onChange={(e) => setSupaKey(e.target.value)} onBlur={save} />
         </div>
       </Section>
 
