@@ -295,6 +295,15 @@ body {
   background: rgba(var(--accent-glow-rgb), 0.08) !important;
 }
 
+/* ── Light Mode: Mobile Header ───────────────────────────────── */
+[data-theme="light"] .mobile-header {
+  background: rgba(245, 240, 255, 0.95);
+  border-bottom-color: rgba(var(--accent-glow-rgb), 0.15);
+}
+[data-theme="light"] .hamburger-btn {
+  color: #1e1b4b;
+}
+
 /* ── Light Mode: Date Toggle Pills ───────────────────────────────────── */
 [data-theme="light"] .date-toggle-container {
   background: var(--bg-sidebar-light, #e4dcfc) !important;
@@ -703,24 +712,121 @@ textarea.input { resize: vertical; min-height: 120px; line-height: 1.7; }
 .gap-2 { gap: 8px; }
 .gap-3 { gap: 12px; }
 
-/* ── Page Container ──────────────────────────────────────────────────── */
+/* ── Page Container ──────────────────────────────────────────── */
 .page {
   padding: 16px;
   padding-bottom: 88px; /* above bottom nav */
   max-width: 720px;
   margin: 0 auto;
+  min-height: calc(100dvh - 52px); /* minus mobile header height */
+}
+
+/* ── App Layout (Mobile-first) ───────────────────────────────── */
+.app-layout {
+  display: flex;
+  flex-direction: column;
   min-height: 100dvh;
 }
 
-/* ── Desktop Sidebar Layout ──────────────────────────────────────────── */
+.app-main {
+  flex: 1;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+/* ── Mobile Header Bar ───────────────────────────────────────── */
+.mobile-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  gap: 12px;
+}
+
+.hamburger-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  transition: background 150ms;
+  flex-shrink: 0;
+}
+.hamburger-btn:hover {
+  background: rgba(var(--accent-glow-rgb), 0.1);
+}
+
+/* ── Sidebar Overlay (Mobile) ────────────────────────────────── */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 60;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 280ms ease;
+}
+.sidebar-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Sidebar Drawer (Mobile) ─────────────────────────────────── */
+.sidebar-drawer {
+  position: fixed;
+  top: 0;
+  right: 0; /* RTL: drawer slides in from the right */
+  bottom: 0;
+  width: min(280px, 85vw);
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  transform: translateX(100%); /* hidden off-screen to the right */
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.sidebar-drawer.open {
+  transform: translateX(0);
+}
+
+/* ── Desktop Layout (≥768px) ─────────────────────────────────── */
 @media (min-width: 768px) {
   .app-layout {
     display: grid;
     grid-template-columns: 220px 1fr;
+    grid-template-rows: 1fr;
+    min-height: 100dvh;
+    flex-direction: unset;
+  }
+
+  .app-main {
+    overflow-y: auto;
+  }
+
+  .bottom-nav { display: none; }
+  .mobile-header { display: none; }
+  .sidebar-drawer { display: none; }
+  .sidebar-overlay { display: none; }
+
+  .page {
+    padding-bottom: 32px;
     min-height: 100dvh;
   }
-  .bottom-nav { display: none; }
-  .page { padding-bottom: 32px; }
 }
 
 /* ── Section Header ──────────────────────────────────────────────────── */
