@@ -6,7 +6,7 @@
 > 🌐 **دموی آنلاین و زنده:**  
 > **[https://adhd-friendly-tracker.pages.dev/](https://adhd-friendly-tracker.pages.dev/)**
 
-یک اپ **Progressive Web App** برای مدیریت وظایف دانشجویان مبتلا به ADHD.  
+یک پلنر همه کاره با کوچ AI برای ADHDer ها!
 قابل نصب روی Windows، iOS Safari، و Android بدون نیاز به VPN در ایران.
 
 ---
