@@ -1,8 +1,132 @@
 // ── Resilient Gemini AI Gateway (Multi-endpoint Proxy & Direct API Fallback) ──
 import { settingsDb } from './db';
+import { useSettingsStore } from '../store/useSettingsStore';
+import { toast } from '../components/shared';
 
 const DEFAULT_PROXY_URL = import.meta.env.VITE_GEMINI_PROXY_URL || '';
 const DIRECT_GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+
+/**
+ * Clean and normalize OpenAI-compatible baseUrl, stripping trailing slashes and redundant /v1.
+ */
+export function normalizeBaseUrl(baseUrl = '') {
+  let url = (baseUrl || '').trim();
+  url = url.replace(/\/+$/, '');
+  url = url.replace(/\/v1$/, '');
+  url = url.replace(/\/+$/, '');
+  return url;
+}
+
+export function getChatEndpoint(baseUrl = '') {
+  const trimmed = (baseUrl || '').trim().replace(/\/+$/, '');
+  if (trimmed.endsWith('/chat/completions')) return trimmed;
+  return `${normalizeBaseUrl(trimmed)}/v1/chat/completions`;
+}
+
+export function getModelsEndpoint(baseUrl = '') {
+  const trimmed = (baseUrl || '').trim().replace(/\/+$/, '');
+  if (trimmed.endsWith('/models')) return trimmed;
+  return `${normalizeBaseUrl(trimmed)}/v1/models`;
+}
+
+const EXCLUDED_MODEL_KEYWORDS = [
+  'whisper', 'guard', 'safeguard', 'embedding', 'moderation', 'tts',
+  'audio', 'transcribe', 'dall-e', 'image', 'realtime', 'vision-preview'
+];
+
+const PREFERRED_CHAT_PATTERNS = [
+  'llama-3.3-70b-versatile',
+  'llama-3.3-70b',
+  'llama-3.1-70b',
+  'llama-3.1-8b-instant',
+  'llama-3.1-8b',
+  'llama-3',
+  'deepseek-r1',
+  'deepseek-v3',
+  'deepseek',
+  'qwen-2.5',
+  'qwen',
+  'mistral-large',
+  'mixtral',
+  'mistral',
+  'gemma2-9b-it',
+  'gemma-2',
+  'gpt-4o-mini',
+  'gpt-4o',
+  'gpt-4',
+  'chat'
+];
+
+/**
+ * Discover active chat models from an OpenAI-compatible /v1/models endpoint.
+ */
+export async function discoverActiveModels(baseUrl, apiKey) {
+  const endpoint = getModelsEndpoint(baseUrl);
+
+  const response = await fetch(endpoint, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {})
+    },
+    signal: AbortSignal.timeout(15_000),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text().catch(() => '');
+    throw new Error(`دریافت لیست مدل‌ها با خطا مواجه شد (${response.status}): ${errText}`);
+  }
+
+  const json = await response.json();
+  const rawList = Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
+
+  const allModelIds = rawList
+    .map(item => (typeof item === 'string' ? item : item?.id))
+    .filter(Boolean);
+
+  const chatModels = allModelIds.filter((id) => {
+    const lower = id.toLowerCase();
+    return !EXCLUDED_MODEL_KEYWORDS.some((kw) => lower.includes(kw));
+  });
+
+  if (chatModels.length === 0) {
+    throw new Error('هیچ مدل متنی/چت فعالی در این سرور یافت نشد.');
+  }
+
+  return chatModels;
+}
+
+/**
+ * Select the best chat model from a list of discovered models.
+ */
+export function pickBestChatModel(models) {
+  if (!models || models.length === 0) return null;
+  for (const pattern of PREFERRED_CHAT_PATTERNS) {
+    const match = models.find(m => m.toLowerCase().includes(pattern));
+    if (match) return match;
+  }
+  return models[0];
+}
+
+/**
+ * Check if the error indicates a 404 or model not found / deprecated error.
+ */
+function isModelNotFoundError(status, errorData, errorText = '') {
+  if (status === 404) return true;
+  const combined = (
+    JSON.stringify(errorData || '') + ' ' + (errorText || '')
+  ).toLowerCase();
+
+  return (
+    combined.includes('model_not_found') ||
+    combined.includes('does not exist or you do not have access to it') ||
+    combined.includes('model not found') ||
+    combined.includes('decommissioned') ||
+    combined.includes('has been deprecated') ||
+    combined.includes('is not available') ||
+    combined.includes('model_deprecated')
+  );
+}
 
 /**
  * Call Gemini 1.5 Flash with resilient failover across primary proxy, backup proxy, and direct API key.
@@ -112,13 +236,14 @@ async function callDirectGeminiApi(apiKey, userPrompt, systemPrompt, options) {
   return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
-async function callOpenAIApi(baseUrl, apiKey, userPrompt, systemPrompt, options) {
-  const cleanUrl = baseUrl.replace(/\/+$/, '');
-  const endpoint = cleanUrl.endsWith('/v1/chat/completions') ? cleanUrl : `${cleanUrl}/v1/chat/completions`;
+async function callOpenAIApi(baseUrl, apiKey, userPrompt, systemPrompt, options = {}, retryCount = 0) {
+  const endpoint = getChatEndpoint(baseUrl);
   
   const messages = [];
   if (systemPrompt) messages.push({ role: 'system', content: systemPrompt });
   messages.push({ role: 'user', content: userPrompt });
+
+  const currentModel = options.modelOverride || useSettingsStore.getState().openaiModel || settingsDb.get().openaiModel || 'llama-3.3-70b-versatile';
 
   const response = await fetch(endpoint, {
     method: 'POST',
@@ -127,7 +252,7 @@ async function callOpenAIApi(baseUrl, apiKey, userPrompt, systemPrompt, options)
       ...(apiKey && { 'Authorization': `Bearer ${apiKey}` })
     },
     body: JSON.stringify({
-      model: settingsDb.get().openaiModel || 'llama-3.3-70b-versatile',
+      model: currentModel,
       messages,
       temperature: options.temperature ?? 0.7,
       max_tokens: options.maxTokens ?? 2048,
@@ -136,8 +261,42 @@ async function callOpenAIApi(baseUrl, apiKey, userPrompt, systemPrompt, options)
   });
 
   if (!response.ok) {
-    const errorText = await response.text().catch(() => 'خطای ناشناخته OpenAI');
-    throw new Error(`${response.status} — ${errorText}`);
+    let errorData = null;
+    let errorText = '';
+    try {
+      errorText = await response.text();
+      errorData = JSON.parse(errorText);
+    } catch {
+      // ignore
+    }
+
+    // Smart Fallback on 404 / model not found / deprecated
+    if (retryCount === 0 && isModelNotFoundError(response.status, errorData, errorText)) {
+      console.warn(`[Gemini/OpenAI] Model "${currentModel}" failed with 404/not found. Discovering active models...`);
+      try {
+        const availableModels = await discoverActiveModels(baseUrl, apiKey);
+        const newModel = pickBestChatModel(availableModels);
+        if (newModel && newModel !== currentModel) {
+          console.info(`[Gemini/OpenAI] Switching model from "${currentModel}" to "${newModel}"`);
+          useSettingsStore.getState().update({ openaiModel: newModel });
+          toast(`مدل قبلی غیرفعال بود؛ به صورت خودکار به مدل زنده «${newModel}» تغییر یافت ✨`, 'info');
+
+          return await callOpenAIApi(
+            baseUrl,
+            apiKey,
+            userPrompt,
+            systemPrompt,
+            { ...options, modelOverride: newModel },
+            retryCount + 1
+          );
+        }
+      } catch (discoveryErr) {
+        console.error('[Gemini/OpenAI] Dynamic model discovery failed:', discoveryErr.message);
+      }
+    }
+
+    const message = errorData?.error?.message || errorText || `خطای سرور (${response.status})`;
+    throw new Error(`${response.status} — ${message}`);
   }
 
   const data = await response.json();

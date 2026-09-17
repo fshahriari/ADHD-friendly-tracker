@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useEventStore } from '../store/useEventStore';
 
 import { Button, toast } from '../components/shared';
 import { timerLogDb, taskDb, eventsDb, coachRulesDb, settingsDb, icalDb } from '../lib/db';
-import { callGemini } from '../lib/gemini';
-import { Save, Moon, Sun, Palette, Server, Shield, Brain, Plus, Trash2, CheckCircle2, Download, Upload, Globe } from 'lucide-react';
+import { callGemini, discoverActiveModels, pickBestChatModel } from '../lib/gemini';
+import { Save, Moon, Sun, Palette, Server, Shield, Brain, Plus, Trash2, CheckCircle2, Download, Upload, Globe, RefreshCw } from 'lucide-react';
 import ConnectCalendarModal from '../components/calendar/ConnectCalendarModal';
 
 function Section({ title, icon, children }) {
@@ -81,7 +81,16 @@ export default function SettingsPage() {
 
   const [newRuleText, setNewRuleText] = useState('');
   const [testingAi, setTestingAi]     = useState(false);
+  const [fetchingModels, setFetchingModels] = useState(false);
+  const [discoveredModels, setDiscoveredModels] = useState([]);
   const [showConnectModal, setShowConnectModal] = useState(false);
+
+  // Auto-sync openaiModel state if updated by background fallback discovery
+  useEffect(() => {
+    if (settings.openaiModel && settings.openaiModel !== openaiModel) {
+      setOpenaiModel(settings.openaiModel);
+    }
+  }, [settings.openaiModel]);
 
   const save = () => {
     settings.update({
@@ -98,6 +107,28 @@ export default function SettingsPage() {
       longBreak,
     });
     toast('تنظیمات ذخیره شد ✅');
+  };
+
+  const handleRefreshModels = async () => {
+    if (!proxyUrl.trim()) {
+      toast('لطفاً ابتدا آدرس Base URL را وارد کنید', 'warning');
+      return;
+    }
+    setFetchingModels(true);
+    try {
+      const models = await discoverActiveModels(proxyUrl, directKey);
+      setDiscoveredModels(models);
+      const best = pickBestChatModel(models);
+      if (best) {
+        setOpenaiModel(best);
+        settings.update({ openaiModel: best, geminiProxyUrl: proxyUrl, directGeminiApiKey: directKey, aiProvider });
+        toast(`مدل‌های فعال دریافت شدند (${models.length} مدل). مدل پیشنهادی «${best}» تنظیم شد ✨`);
+      }
+    } catch (err) {
+      toast(err.message, 'error');
+    } finally {
+      setFetchingModels(false);
+    }
   };
 
   const handleExport = () => {
@@ -147,7 +178,13 @@ export default function SettingsPage() {
     setTestingAi(true);
     try {
       // Save current state first to test
-      settings.update({ geminiProxyUrl: proxyUrl, backupGeminiProxyUrl: backupUrl, directGeminiApiKey: directKey });
+      settings.update({
+        geminiProxyUrl: proxyUrl,
+        backupGeminiProxyUrl: backupUrl,
+        directGeminiApiKey: directKey,
+        aiProvider,
+        openaiModel,
+      });
       const res = await callGemini('سلام، آیا سرور هوش مصنوعی وصل است؟', 'تست سریع. فقط پاسخ بده: بله وصل است.');
       toast(`پاسخ هوش مصنوعی: ${res.trim()} ✨`);
     } catch (err) {
@@ -308,9 +345,49 @@ export default function SettingsPage() {
 
             {aiProvider === 'openai' && (
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6 }}>نام مدل (Model Name)</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>نام مدل (Model Name)</label>
+                  <button
+                    type="button"
+                    onClick={handleRefreshModels}
+                    disabled={fetchingModels}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 5,
+                      background: 'none', border: 'none',
+                      color: isDark ? '#60a5fa' : '#2563eb',
+                      cursor: 'pointer', fontSize: '0.76rem', fontWeight: 600,
+                      padding: 0
+                    }}
+                    title="دریافت خودکار مدل‌های زنده و فعال از سرور"
+                  >
+                    <RefreshCw size={12} className={fetchingModels ? 'animate-spin' : ''} />
+                    {fetchingModels ? 'در حال دریافت...' : '🔄 بروزرسانی مدل‌های فعال'}
+                  </button>
+                </div>
+
                 <input className="input" placeholder="مثال: llama-3.3-70b-versatile" dir="ltr"
                   value={openaiModel} onChange={(e) => setOpenaiModel(e.target.value)} onBlur={save} />
+
+                {discoveredModels.length > 0 && (
+                  <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>انتخاب از مدل‌های کشف‌شده:</span>
+                    <select
+                      className="input"
+                      style={{ padding: '4px 10px', fontSize: '0.78rem', width: 'auto', minWidth: 200 }}
+                      value={openaiModel}
+                      onChange={(e) => {
+                        const m = e.target.value;
+                        setOpenaiModel(m);
+                        settings.update({ openaiModel: m });
+                        toast(`مدل «${m}» انتخاب شد`);
+                      }}
+                    >
+                      {discoveredModels.map((m) => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
             )}
 

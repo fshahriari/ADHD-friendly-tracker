@@ -26,6 +26,8 @@ export const useSettingsStore = create((set, get) => ({
 
   setEnergyLevel: (level) => get().update({ energyLevel: level }),
 
+  setOpenaiModel: (model) => get().update({ openaiModel: model }),
+
   addIcalUrl: (url) => {
     const urls = [...(get().icalUrls || [])];
     if (!urls.includes(url)) urls.push(url);
