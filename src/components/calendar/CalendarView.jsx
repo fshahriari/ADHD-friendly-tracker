@@ -1,10 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { ChevronRight, ChevronLeft, Link, RefreshCw, Plus, Trash2, Calendar as CalendarIcon, Bell, Clock, MapPin, Settings as SettingsIcon } from 'lucide-react';
+import {
+  ChevronRight, ChevronLeft, Link, RefreshCw, Plus, Trash2,
+  Calendar as CalendarIcon, Bell, Clock, MapPin, Settings as SettingsIcon,
+  ExternalLink, Globe
+} from 'lucide-react';
 import { useTaskStore } from '../../store/useTaskStore';
 import { useEventStore } from '../../store/useEventStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { fetchAndParseICal } from '../../lib/ical';
 import { icalDb } from '../../lib/db';
+import ConnectCalendarModal from './ConnectCalendarModal';
 import {
   getJalaliMonthGrid, jalaliAddMonth, jalaliSubMonth,
   formatJalali, isSameDayJalali, PERSIAN_WEEKDAYS,
@@ -125,65 +130,6 @@ function AddEventModal({ open, onClose, defaultDate }) {
   );
 }
 
-// ── iCal Import Panel ─────────────────────────────────────────────────────
-function ICalPanel({ onSync }) {
-  const { icalUrls, addIcalUrl, removeIcalUrl } = useSettingsStore();
-  const { importFromICal } = useTaskStore();
-  const [newUrl, setNewUrl] = useState('');
-  const [syncing, setSyncing] = useState(false);
-
-  const handleSync = async () => {
-    if (!icalUrls.length) { toast('هیچ لینک iCal اضافه نشده', 'warning'); return; }
-    setSyncing(true);
-    let total = 0;
-    for (const url of icalUrls) {
-      try {
-        const events = await fetchAndParseICal(url);
-        icalDb.saveAll(events);
-        importFromICal(events);
-        total += events.length;
-      } catch (err) {
-        toast(`خطا در بارگذاری: ${url.slice(0, 40)}...`, 'error');
-      }
-    }
-    toast(`${total} رویداد همگام‌سازی شد ✅`);
-    setSyncing(false);
-    onSync?.();
-  };
-
-  const handleAdd = () => {
-    if (!newUrl.includes('.ics')) { toast('لینک باید با .ics ختم شود', 'warning'); return; }
-    addIcalUrl(newUrl.trim());
-    setNewUrl('');
-    toast('لینک اضافه شد');
-  };
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <input className="input" placeholder="https://moodle.../calendar.ics"
-          value={newUrl} onChange={(e) => setNewUrl(e.target.value)}
-          style={{ flex: 1 }} dir="ltr" />
-        <Button variant="ghost" onClick={handleAdd}><Plus size={16} /></Button>
-      </div>
-
-      {icalUrls.map((url, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: 'rgba(15,10,30,0.4)', borderRadius: 8, border: '1px solid #1a1130' }}>
-          <Link size={13} color="#64748b" style={{ flexShrink: 0 }} />
-          <span style={{ flex: 1, fontSize: '0.8rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', direction: 'ltr', textAlign: 'left' }}>{url}</span>
-          <button className="btn btn-icon btn-sm btn-ghost" onClick={() => removeIcalUrl(url)} style={{ color: '#64748b' }}>
-            <Trash2 size={13} />
-          </button>
-        </div>
-      ))}
-
-      <Button variant="primary" onClick={handleSync} disabled={syncing || !icalUrls.length}>
-        {syncing ? <><Spinner size={16} color="white" /> در حال همگام‌سازی...</> : <><RefreshCw size={15} /> همگام‌سازی اکنون</>}
-      </Button>
-    </div>
-  );
-}
-
 // ── Unified Dual-Date Calendar Grid ───────────────────────────────────────
 function DualCalendarGrid({ currentDate, tasks, events, onDayClick, selectedDate, isDark, primaryCalendar }) {
   const isJalaliPrimary = primaryCalendar !== 'gregorian';
@@ -294,10 +240,10 @@ export default function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
 
-  const [showIcal, setShowIcal] = useState(false);
+  const [showConnectModal, setShowConnectModal] = useState(false);
   const [showAddEvent, setShowAddEvent] = useState(false);
 
-  const { tasks } = useTaskStore();
+  const { tasks, addTask } = useTaskStore();
   const { events, loadEvents, deleteEvent } = useEventStore();
   const { theme, calendarPrimary = 'jalali' } = useSettingsStore();
   const isDark = theme === 'dark';
@@ -332,8 +278,8 @@ export default function CalendarView() {
           <Button variant="primary" size="sm" onClick={() => setShowAddEvent(true)}>
             <Plus size={14} /> افزودن رویداد
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => setShowIcal(true)}>
-            <Link size={14} /> مودل iCal
+          <Button variant="ghost" size="sm" onClick={() => setShowConnectModal(true)}>
+            <Globe size={14} color="#4285F4" /> اتصال تقویم (گوگل / اپل)
           </Button>
         </div>
       </div>
@@ -371,27 +317,127 @@ export default function CalendarView() {
           {selectedItems.tasks.length === 0 && selectedItems.events.length === 0 ? (
             <p style={{ color: '#64748b', fontSize: '0.85rem', margin: 0 }}>هیچ رویداد یا تکلیفی برای این روز وجود ندارد.</p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {/* Events */}
-              {selectedItems.events.map((e) => (
-                <div key={e.id} className="surface" style={{ padding: '10px 14px', borderRight: '3px solid #34d399', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                      <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)' }}>📅 {e.title}</span>
-                      <span style={{ fontSize: '0.72rem', background: 'rgba(52,211,153,0.15)', color: '#34d399', padding: '2px 8px', borderRadius: 20 }}>
-                        رویداد تقویم
-                      </span>
+              {selectedItems.events.map((e) => {
+                const isGoogle = e.source === 'google';
+                const isApple = e.source === 'apple';
+                const isSamsung = e.source === 'samsung';
+                const isExternal = isGoogle || isApple || isSamsung || e.source === 'moodle' || e.source === 'ical';
+                const borderColor = isGoogle ? '#4285F4' : (isApple ? '#94a3b8' : (isSamsung ? '#034ea2' : '#34d399'));
+
+                return (
+                  <div
+                    key={e.id}
+                    className="surface"
+                    style={{
+                      padding: '12px 16px',
+                      borderRight: `4px solid ${borderColor}`,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 8,
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                          <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-primary)' }}>
+                            {isGoogle ? '🌐' : isApple ? '🍏' : isSamsung ? '📱' : '📅'} {e.title}
+                          </span>
+                          {isGoogle && (
+                            <span style={{ fontSize: '0.68rem', background: isDark ? 'rgba(66,133,244,0.15)' : 'rgba(37,99,235,0.12)', color: isDark ? '#60a5fa' : '#1d4ed8', padding: '1px 8px', borderRadius: 20, fontWeight: 700 }}>
+                              Google Calendar
+                            </span>
+                          )}
+                          {isApple && (
+                            <span style={{ fontSize: '0.68rem', background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(100,116,139,0.15)', color: isDark ? '#e2e8f0' : '#334155', padding: '1px 8px', borderRadius: 20, fontWeight: 700 }}>
+                              Apple Calendar
+                            </span>
+                          )}
+                          {isSamsung && (
+                            <span style={{ fontSize: '0.68rem', background: isDark ? 'rgba(3,78,162,0.2)' : 'rgba(3,78,162,0.12)', color: isDark ? '#93c5fd' : '#034ea2', padding: '1px 8px', borderRadius: 20, fontWeight: 700 }}>
+                              Samsung Calendar
+                            </span>
+                          )}
+                          {!isExternal && (
+                            <span style={{ fontSize: '0.68rem', background: 'rgba(52,211,153,0.15)', color: '#34d399', padding: '1px 8px', borderRadius: 20 }}>
+                              رویداد تقویم
+                            </span>
+                          )}
+                          {e.calendarName && !isGoogle && !isApple && !isSamsung && (
+                            <span style={{ fontSize: '0.68rem', background: 'rgba(var(--accent-glow-rgb),0.12)', color: 'var(--color-primary-400)', padding: '1px 8px', borderRadius: 20 }}>
+                              {e.calendarName}
+                            </span>
+                          )}
+                        </div>
+
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: 14 }}>
+                          <span>
+                            <Clock size={12} style={{ display: 'inline', marginLeft: 4 }} />
+                            {e.isAllDay ? 'تمام روز' : (
+                              <>
+                                {new Date(e.startDate).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })}
+                                {e.endDate && ` تا ${new Date(e.endDate).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })}`}
+                              </>
+                            )}
+                          </span>
+                          {e.location && (
+                            <span>
+                              <MapPin size={12} style={{ display: 'inline', marginLeft: 4 }} />
+                              {e.location}
+                            </span>
+                          )}
+                        </div>
+
+                        {e.description && (
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '6px 0 0', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
+                            {e.description.slice(0, 160)}{e.description.length > 160 ? '...' : ''}
+                          </p>
+                        )}
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        {!isExternal && (
+                          <button onClick={() => deleteEvent(e.id)} className="btn btn-icon btn-ghost btn-sm" style={{ color: '#fb7185' }} title="حذف">
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: 4, display: 'flex', gap: 12 }}>
-                      <span><Clock size={12} /> {new Date(e.startDate).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })}</span>
-                      {e.location && <span><MapPin size={12} /> {e.location}</span>}
+
+                    {/* Action buttons: Join online meeting & Convert to Task */}
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', paddingTop: 6, borderTop: '1px solid rgba(var(--accent-glow-rgb),0.08)' }}>
+                      {e.meetingUrl && (
+                        <a
+                          href={e.meetingUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn btn-sm btn-ghost"
+                          style={{ fontSize: '0.75rem', textDecoration: 'none', color: '#60a5fa', borderColor: 'rgba(96,165,250,0.3)', padding: '4px 10px', minHeight: 30 }}
+                        >
+                          <ExternalLink size={12} /> ورود به جلسه آنلاین
+                        </a>
+                      )}
+                      <button
+                        onClick={() => {
+                          addTask({
+                            title: e.title,
+                            description: e.description || e.location || '',
+                            dueDate: e.startDate,
+                            category: e.category || 'personal',
+                            priority: 'medium',
+                          });
+                          toast('رویداد به لیست وظایف افزوده شد 📋');
+                        }}
+                        className="btn btn-sm btn-ghost"
+                        style={{ fontSize: '0.75rem', padding: '4px 10px', minHeight: 30 }}
+                      >
+                        <Plus size={12} /> تبدیل به وظیفه
+                      </button>
                     </div>
                   </div>
-                  <button onClick={() => deleteEvent(e.id)} className="btn btn-icon btn-ghost btn-sm" style={{ color: '#fb7185' }}>
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              ))}
+                );
+              })}
 
               {/* Tasks */}
               {selectedItems.tasks.map((t) => (
@@ -413,10 +459,12 @@ export default function CalendarView() {
       {/* Manual Add Event modal */}
       <AddEventModal open={showAddEvent} onClose={() => setShowAddEvent(false)} defaultDate={selectedDate} />
 
-      {/* iCal modal */}
-      <Modal open={showIcal} onClose={() => setShowIcal(false)} title="📥 وارد کردن تقویم مودل (iCal)">
-        <ICalPanel onSync={() => { setShowIcal(false); }} />
-      </Modal>
+      {/* Connect Calendar modal (Google, Apple, Moodle, ICS) */}
+      <ConnectCalendarModal
+        open={showConnectModal}
+        onClose={() => setShowConnectModal(false)}
+        onSyncComplete={() => { loadEvents(); }}
+      />
     </div>
   );
 }

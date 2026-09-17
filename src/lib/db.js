@@ -8,6 +8,7 @@ const KEYS = {
   TIMER_LOG: 'adhd_timer_log',
   BRAIN_DUMPS: 'adhd_brain_dumps',
   ICAL_EVENTS: 'adhd_ical_events',
+  CONNECTED_CALENDARS: 'adhd_connected_calendars',
   EVENTS: 'adhd_events',
   COACH_RULES: 'adhd_coach_rules',
 };
@@ -154,6 +155,31 @@ export const icalDb = {
   getLastSync: () => {
     const events = read(KEYS.ICAL_EVENTS, []);
     return events[0]?.syncedAt || null;
+  },
+};
+
+// ── Connected External Calendars (Google, Apple, Moodle) ─────────────────
+export const connectedCalendarsDb = {
+  getAll: () => read(KEYS.CONNECTED_CALENDARS, []),
+
+  saveAll: (calendars) => write(KEYS.CONNECTED_CALENDARS, calendars),
+
+  add: (cal) => {
+    const list = read(KEYS.CONNECTED_CALENDARS, []);
+    const filtered = list.filter((c) => c.id !== cal.id && c.url !== cal.url);
+    filtered.push(cal);
+    write(KEYS.CONNECTED_CALENDARS, filtered);
+  },
+
+  update: (id, partial) => {
+    const list = read(KEYS.CONNECTED_CALENDARS, []);
+    const updated = list.map((c) => (c.id === id ? { ...c, ...partial } : c));
+    write(KEYS.CONNECTED_CALENDARS, updated);
+  },
+
+  remove: (id) => {
+    const list = read(KEYS.CONNECTED_CALENDARS, []);
+    write(KEYS.CONNECTED_CALENDARS, list.filter((c) => c.id !== id && c.url !== id));
   },
 };
 

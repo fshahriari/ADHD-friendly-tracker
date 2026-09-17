@@ -11,6 +11,7 @@ import { useSettingsStore } from './store/useSettingsStore';
 import { useTaskStore } from './store/useTaskStore';
 import { useEventStore } from './store/useEventStore';
 import { reminderService } from './lib/reminderService';
+import { calendarSyncService } from './lib/calendarSyncService';
 
 function BrainDumpPage() {
   return <div className="page"><BrainDump /></div>;
@@ -54,17 +55,8 @@ export default function App() {
       navigator.serviceWorker.register('/sw.js').catch(() => {});
     }
 
-    // Fetch iCal on app open
-    const settings = JSON.parse(localStorage.getItem('adhd_settings') || '{}');
-    if (settings.icalUrls?.length) {
-      import('./lib/ical').then(({ fetchAndParseICal }) => {
-        import('./lib/db').then(({ icalDb }) => {
-          settings.icalUrls.forEach((url) =>
-            fetchAndParseICal(url).then((events) => icalDb.saveAll(events)).catch(() => {})
-          );
-        });
-      });
-    }
+    // Start background calendar sync (Google, Apple, Moodle)
+    calendarSyncService.startBackgroundSync(15);
 
     // Auto-sync when coming online
     const handleOnline = async () => {
@@ -76,12 +68,13 @@ export default function App() {
           supabaseTasks.upsert(task).catch(() => {});
         });
       });
-      // (Events can be added here if we implement event syncing later)
+      calendarSyncService.syncAll().catch(() => {});
     };
     window.addEventListener('online', handleOnline);
 
     return () => {
       reminderService.stop();
+      calendarSyncService.stopBackgroundSync();
       window.removeEventListener('online', handleOnline);
     };
   }, [user]);

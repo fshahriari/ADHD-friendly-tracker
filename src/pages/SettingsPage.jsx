@@ -5,7 +5,8 @@ import { useEventStore } from '../store/useEventStore';
 import { Button, toast } from '../components/shared';
 import { timerLogDb, taskDb, eventsDb, coachRulesDb, settingsDb, icalDb } from '../lib/db';
 import { callGemini } from '../lib/gemini';
-import { Save, Moon, Sun, Palette, Server, Shield, Brain, Plus, Trash2, CheckCircle2, Download, Upload } from 'lucide-react';
+import { Save, Moon, Sun, Palette, Server, Shield, Brain, Plus, Trash2, CheckCircle2, Download, Upload, Globe } from 'lucide-react';
+import ConnectCalendarModal from '../components/calendar/ConnectCalendarModal';
 
 function Section({ title, icon, children }) {
   return (
@@ -80,6 +81,7 @@ export default function SettingsPage() {
 
   const [newRuleText, setNewRuleText] = useState('');
   const [testingAi, setTestingAi]     = useState(false);
+  const [showConnectModal, setShowConnectModal] = useState(false);
 
   const save = () => {
     settings.update({
@@ -229,6 +231,15 @@ export default function SettingsPage() {
               );
             })}
           </div>
+        </Row>
+      </Section>
+
+      {/* Connected External Calendars (Google & Apple) */}
+      <Section title="تقویم‌های متصل (Google Calendar & Apple)" icon="🌐">
+        <Row label="همگام‌سازی تقویم‌های ابری" desc="اتصال تقویم گوگل یا اپل جهت نمایش خودکار رویدادها، کلاس‌ها و جلسات در ردیاب">
+          <Button variant="ghost" size="sm" onClick={() => setShowConnectModal(true)} style={{ color: 'var(--color-primary-400)', borderColor: 'rgba(var(--accent-glow-rgb),0.3)' }}>
+            <Globe size={15} /> مدیریت و اتصال تقویم
+          </Button>
         </Row>
       </Section>
 
@@ -389,6 +400,11 @@ export default function SettingsPage() {
           توسط <strong style={{ color: '#a78bfa' }}>فاژی</strong> · ردیاب ADHD نسخه ۱.۰
         </p>
       </div>
+
+      <ConnectCalendarModal
+        open={showConnectModal}
+        onClose={() => setShowConnectModal(false)}
+      />
     </div>
   );
 }

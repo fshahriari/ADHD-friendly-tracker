@@ -21,7 +21,7 @@ function corsHeaders(origin, env) {
   const allowedOrigin = (allowed === '*') ? origin || '*' : (origin === allowed ? origin : 'null');
   return {
     'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Max-Age': '86400',
   };
@@ -47,8 +47,50 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders(origin, env) });
     }
 
-    // Only allow POST to /api/gemini
+    // ── Calendar iCal Proxy ──────────────────────────────────────────────
     const url = new URL(request.url);
+    if (url.pathname === '/api/calendar-proxy') {
+      const targetUrl = url.searchParams.get('url');
+      if (!targetUrl) {
+        return new Response(JSON.stringify({ error: 'url parameter is required' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders(origin, env) },
+        });
+      }
+
+      try {
+        const calResp = await fetch(targetUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Accept': 'text/calendar, text/plain, */*',
+          },
+        });
+
+        if (!calResp.ok) {
+          return new Response(JSON.stringify({ error: `Remote server responded with ${calResp.status}` }), {
+            status: calResp.status,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders(origin, env) },
+          });
+        }
+
+        const calText = await calResp.text();
+        return new Response(calText, {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/calendar; charset=utf-8',
+            'Cache-Control': 'public, max-age=300', // cache for 5 min
+            ...corsHeaders(origin, env),
+          },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: `Failed to fetch calendar: ${err.message}` }), {
+          status: 502,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders(origin, env) },
+        });
+      }
+    }
+
+    // Only allow POST to /api/gemini
     if (url.pathname !== '/api/gemini') {
       return new Response(JSON.stringify({ error: 'Not found' }), {
         status: 404,

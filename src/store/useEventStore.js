@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { eventsDb, coachRulesDb } from '../lib/db';
+import { eventsDb, coachRulesDb, icalDb } from '../lib/db';
 import { getSupabaseClient } from '../lib/supabase';
 
 export const useEventStore = create((set, get) => ({
@@ -25,7 +25,16 @@ export const useEventStore = create((set, get) => ({
       }
     }
 
-    set({ events: local, coachRules: rules, loading: false });
+    // Merge with external calendar events (Google, Apple, Moodle)
+    const icalEvents = icalDb.getAll();
+    const eventMap = new Map();
+    local.forEach((e) => eventMap.set(e.id, e));
+    icalEvents.forEach((e) => {
+      if (!eventMap.has(e.id)) eventMap.set(e.id, e);
+    });
+    const merged = Array.from(eventMap.values());
+
+    set({ events: merged, coachRules: rules, loading: false });
   },
 
   addEvent: async (eventData) => {
