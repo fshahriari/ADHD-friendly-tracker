@@ -1,5 +1,11 @@
 # ردیاب ADHD — Student Tracker PWA
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-adhd--friendly--tracker.pages.dev-6366f1?style=for-the-badge&logo=cloudflarepages&logoColor=white)](https://adhd-friendly-tracker.pages.dev/)
+[![PWA Ready](https://img.shields.io/badge/PWA-Installable-10b981?style=for-the-badge&logo=pwa&logoColor=white)](https://adhd-friendly-tracker.pages.dev/)
+
+> 🌐 **دموی آنلاین و زنده:**  
+> **[https://adhd-friendly-tracker.pages.dev/](https://adhd-friendly-tracker.pages.dev/)**
+
 یک اپ **Progressive Web App** برای مدیریت وظایف دانشجویان مبتلا به ADHD.  
 قابل نصب روی Windows، iOS Safari، و Android بدون نیاز به VPN در ایران.
 
@@ -95,7 +101,8 @@ wrangler deploy
 | 🎯 حالت تمرکز | تایمر SVG + confetti |
 | ⚡ فیلتر انرژی | High/Medium/Low |
 | 🔄 Drag and Drop | مرتب‌سازی دستی |
-| 📅 تقویم دوگانه | شمسی + میلادی + مودل |
+| 📅 تقویم یکپارچه ابری | شمسی + میلادی + همگام‌سازی زنده Google، Apple و Samsung Calendar |
+| 🤖 هوش مصنوعی تاب‌آور | کشف خودکار مدل‌های فعال و Fallback هوشمند هنگام خطای ۴۰۴ |
 | ⏰ کوری زمانی | ثبت و تحلیل دقت تخمین |
 | 🎵 صدای طبیعی | Web Audio API بدون فایل |
 
