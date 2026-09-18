@@ -79,10 +79,10 @@ export default function TaskCard({ task, onEdit }) {
         </button>
 
         {/* Content */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ flex: 1, minWidth: 0, direction: 'rtl', textAlign: 'right' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
             <PriorityDot priority={task.priority} />
-            <span style={{ fontWeight: 600, fontSize: '0.95rem', color: task.completed ? 'var(--text-muted)' : 'var(--text-primary)', textDecoration: task.completed ? 'line-through' : 'none', wordBreak: 'break-word' }}>
+            <span style={{ fontWeight: 600, fontSize: '0.95rem', color: task.completed ? 'var(--text-muted)' : 'var(--text-primary)', textDecoration: task.completed ? 'line-through' : 'none', wordBreak: 'break-word', direction: 'rtl', textAlign: 'right' }}>
               {task.title}
             </span>
           </div>
@@ -231,7 +231,7 @@ export default function TaskCard({ task, onEdit }) {
                 </div>
 
                 {/* Step content */}
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap', direction: 'rtl', textAlign: 'right' }}>
                   <span
                     style={{
                       fontSize: '0.86rem',
@@ -241,6 +241,8 @@ export default function TaskCard({ task, onEdit }) {
                         : (isDark ? '#f8fafc' : '#1e1b4b'),
                       textDecoration: isDone ? 'line-through' : 'none',
                       lineHeight: 1.5,
+                      direction: 'rtl',
+                      textAlign: 'right',
                       transition: 'all 150ms ease',
                     }}
                   >

@@ -93,7 +93,11 @@ body {
   background-color: var(--bg-page-dark, var(--color-surface-900));
   color: var(--text-primary);
   font-size: 16px;
-  line-height: 1.6;
+  direction: rtl;
+  text-align: right;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   transition: background-color var(--duration-normal) var(--ease-smooth),
               color var(--duration-normal) var(--ease-smooth);
@@ -563,6 +567,22 @@ body {
 }
 
 textarea.input { resize: vertical; min-height: 120px; line-height: 1.7; }
+
+/* ── Global RTL Alignment for Inputs & Textareas (even when typing English) ── */
+input:not([dir="ltr"]),
+textarea:not([dir="ltr"]),
+select:not([dir="ltr"]),
+.input:not([dir="ltr"]) {
+  direction: rtl;
+  text-align: right;
+}
+
+input:not([dir="ltr"])::placeholder,
+textarea:not([dir="ltr"])::placeholder,
+.input:not([dir="ltr"])::placeholder {
+  direction: rtl;
+  text-align: right;
+}
 
 /* ── Modal Overlay ────────────────────────────────────────────────────── */
 .modal-overlay {

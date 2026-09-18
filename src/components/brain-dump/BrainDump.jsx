@@ -249,6 +249,7 @@ export default function BrainDump() {
           style={{
             width: '100%', resize: 'none', border: 'none', background: 'transparent',
             fontSize: '0.95rem', lineHeight: 1.7, padding: 0, boxShadow: 'none',
+            direction: 'rtl', textAlign: 'right',
           }}
         />
 
@@ -677,9 +678,9 @@ export default function BrainDump() {
                   justifyContent: 'space-between',
                   gap: 12,
                 }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ flex: 1, minWidth: 0, direction: 'rtl', textAlign: 'right' }}>
                   {dump.title && dump.title !== dump.text && (
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: isDark ? '#f8fafc' : '#0f172a', marginBottom: 4 }}>
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: isDark ? '#f8fafc' : '#0f172a', marginBottom: 4, direction: 'rtl', textAlign: 'right' }}>
                       {dump.title}
                     </div>
                   )}
@@ -690,6 +691,8 @@ export default function BrainDump() {
                     lineHeight: 1.6,
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-word',
+                    direction: 'rtl',
+                    textAlign: 'right',
                   }}>
                     {dump.text}
                   </p>

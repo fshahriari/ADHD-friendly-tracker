@@ -777,9 +777,9 @@ export default function CalendarView() {
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
-                      <div style={{ flex: 1 }}>
+                      <div style={{ flex: 1, direction: 'rtl', textAlign: 'right' }}>
                         <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-                          <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-primary)' }}>
+                          <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-primary)', direction: 'rtl', textAlign: 'right' }}>
                             {isGoogle ? '🌐' : isApple ? '🍏' : isSamsung ? '📱' : '📅'} {e.title}
                           </span>
 
@@ -917,9 +917,9 @@ export default function CalendarView() {
                     gap: 10,
                   }}
                 >
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ flex: 1, minWidth: 0, direction: 'rtl', textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                      <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)' }}>📋 {t.title}</span>
+                      <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)', direction: 'rtl', textAlign: 'right' }}>📋 {t.title}</span>
                       <CategoryBadge
                         category={t.category}
                         onClick={() => setEditingTask(t)}
