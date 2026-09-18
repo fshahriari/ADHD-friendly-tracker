@@ -27,6 +27,50 @@ function CalendarPage() {
 import AuthPage from './pages/AuthPage';
 import { useAuthStore } from './store/useAuthStore';
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('ErrorBoundary caught:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          minHeight: '60vh', padding: 24, textAlign: 'center', direction: 'rtl'
+        }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>⚠️</div>
+          <h2 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: 8, color: '#f1f5f9' }}>
+            مشکلی در نمایش این صفحه پیش آمد
+          </h2>
+          <p style={{ fontSize: '0.85rem', color: '#94a3b8', maxWidth: 440, marginBottom: 16 }}>
+            {this.state.error?.message || 'یک خطای غیرمنتظره رخ داده است.'}
+          </p>
+          <button
+            onClick={() => {
+              this.setState({ hasError: false, error: null });
+              window.location.reload();
+            }}
+            className="btn btn-primary"
+            style={{ padding: '8px 20px' }}>
+            بارگذاری مجدد صفحه
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
   const { load, theme, accentColor } = useSettingsStore();
   const { loadTasks, tasks } = useTaskStore();
@@ -111,13 +155,15 @@ export default function App() {
         <AuthPage />
       ) : (
         <AppShell>
-          <Routes>
-            <Route path="/"           element={<Dashboard />} />
-            <Route path="/brain-dump" element={<BrainDumpPage />} />
-            <Route path="/focus"      element={<FocusPage />} />
-            <Route path="/calendar"   element={<CalendarPage />} />
-            <Route path="/settings"   element={<SettingsPage />} />
-          </Routes>
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/"           element={<Dashboard />} />
+              <Route path="/brain-dump" element={<BrainDumpPage />} />
+              <Route path="/focus"      element={<FocusPage />} />
+              <Route path="/calendar"   element={<CalendarPage />} />
+              <Route path="/settings"   element={<SettingsPage />} />
+            </Routes>
+          </ErrorBoundary>
         </AppShell>
       )}
     </BrowserRouter>

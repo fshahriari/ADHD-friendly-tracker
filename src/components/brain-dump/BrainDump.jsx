@@ -49,7 +49,19 @@ export default function BrainDump() {
 
   const loadSavedDumps = useCallback(() => {
     const all = brainDumpDb.getAll();
-    setSavedDumps(all);
+    const seen = new Set();
+    const unique = [];
+    all.forEach((item) => {
+      const key = `${(item.title || '').trim()}:::${(item.text || '').trim()}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(item);
+      }
+    });
+    if (unique.length !== all.length) {
+      brainDumpDb.saveAll(unique);
+    }
+    setSavedDumps(unique);
   }, []);
 
   useEffect(() => {
@@ -180,7 +192,7 @@ export default function BrainDump() {
       }
     });
 
-    // Apply notes / ideas
+    // Apply notes / ideas (only selected ones)
     (proposal.proposedNotes || []).forEach((n, i) => {
       if (acceptedNotes.has(i)) {
         const title = typeof n === 'string' ? n : (n.title || n.content || n.text || '');
@@ -198,16 +210,6 @@ export default function BrainDump() {
     if (proposal.newDetectedRule) {
       addCoachRule(proposal.newDetectedRule);
       toast(`قانون جدید به حافظه کوچ اضافه شد: ${proposal.newDetectedRule}`);
-    }
-
-    // If no specific tasks, events, notes, or rules were selected/found, but user confirmed
-    if (addedTasksCount === 0 && addedEventsCount === 0 && addedNotesCount === 0 && !proposal.newDetectedRule && text.trim()) {
-      brainDumpDb.add({
-        title: text.trim().slice(0, 60),
-        text: text.trim(),
-        type: 'dump',
-      });
-      addedNotesCount++;
     }
 
     loadSavedDumps();
@@ -563,6 +565,7 @@ export default function BrainDump() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {proposal.proposedNotes.map((n, idx) => {
+                  const isChecked = acceptedNotes.has(idx);
                   const noteTitle = typeof n === 'string' ? n : (n.title || n.content || n.text || '');
                   const noteContent = typeof n === 'object' ? (n.content || n.text || '') : '';
                   const noteDetail = noteContent && noteContent !== noteTitle ? noteContent : null;

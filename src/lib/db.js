@@ -135,10 +135,21 @@ export const brainDumpDb = {
 
   add: (dump) => {
     const dumps = read(KEYS.BRAIN_DUMPS, []);
-    dumps.unshift({ ...dump, id: crypto.randomUUID(), savedAt: new Date().toISOString() });
+    const cleanTitle = (dump.title || '').trim();
+    const cleanText = (dump.text || '').trim();
+    // Prevent duplicate entries with identical text & title
+    const isDup = dumps.some(
+      (d) => (dump.id && d.id === dump.id) ||
+             (cleanText && d.text && d.text.trim() === cleanText && (cleanTitle === (d.title || '').trim()))
+    );
+    if (isDup) return;
+
+    dumps.unshift({ ...dump, id: dump.id || crypto.randomUUID(), savedAt: dump.savedAt || new Date().toISOString() });
     if (dumps.length > 100) dumps.splice(100);
     write(KEYS.BRAIN_DUMPS, dumps);
   },
+
+  saveAll: (dumps) => write(KEYS.BRAIN_DUMPS, dumps),
 
   delete: (id) => {
     const dumps = read(KEYS.BRAIN_DUMPS, []).filter((d) => d.id !== id);
