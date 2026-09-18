@@ -150,9 +150,6 @@ export default function BrainDump() {
       setAcceptedTasks(tasksToAccept);
       setAcceptedEvents(eventsToAccept);
       setAcceptedNotes(notesToAccept);
-
-      brainDumpDb.add({ text: text.trim(), type: 'dump' });
-      loadSavedDumps();
     } catch (err) {
       toast(err.message, 'error');
     } finally {
@@ -186,9 +183,11 @@ export default function BrainDump() {
     // Apply notes / ideas
     (proposal.proposedNotes || []).forEach((n, i) => {
       if (acceptedNotes.has(i)) {
+        const title = typeof n === 'string' ? n : (n.title || n.content || n.text || '');
+        const content = typeof n === 'string' ? n : (n.content || n.text || n.title || '');
         brainDumpDb.add({
-          title: typeof n === 'string' ? n : (n.title || n.text || ''),
-          text: typeof n === 'string' ? n : (n.text || n.title || ''),
+          title,
+          text: content,
           type: 'idea',
         });
         addedNotesCount++;
@@ -199,6 +198,16 @@ export default function BrainDump() {
     if (proposal.newDetectedRule) {
       addCoachRule(proposal.newDetectedRule);
       toast(`قانون جدید به حافظه کوچ اضافه شد: ${proposal.newDetectedRule}`);
+    }
+
+    // If no specific tasks, events, notes, or rules were selected/found, but user confirmed
+    if (addedTasksCount === 0 && addedEventsCount === 0 && addedNotesCount === 0 && !proposal.newDetectedRule && text.trim()) {
+      brainDumpDb.add({
+        title: text.trim().slice(0, 60),
+        text: text.trim(),
+        type: 'dump',
+      });
+      addedNotesCount++;
     }
 
     loadSavedDumps();
@@ -553,9 +562,9 @@ export default function BrainDump() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {proposal.proposedNotes.map((n, idx) => {
-                  const isChecked = acceptedNotes.has(idx);
-                  const noteTitle = typeof n === 'string' ? n : (n.title || n.text || '');
-                  const noteDetail = typeof n === 'object' && n.text && n.text !== n.title ? n.text : null;
+                  const noteTitle = typeof n === 'string' ? n : (n.title || n.content || n.text || '');
+                  const noteContent = typeof n === 'object' ? (n.content || n.text || '') : '';
+                  const noteDetail = noteContent && noteContent !== noteTitle ? noteContent : null;
                   return (
                     <div
                       key={idx}
