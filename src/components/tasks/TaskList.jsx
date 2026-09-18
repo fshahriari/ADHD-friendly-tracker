@@ -9,7 +9,7 @@ import { useTaskStore } from '../../store/useTaskStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import TaskCard from './TaskCard';
 import TaskForm from './TaskForm';
-import { Button, EmptyState } from '../shared';
+import { Button, EmptyState, TASK_CATEGORIES } from '../shared';
 
 const ENERGY_OPTIONS = [
   { value: null,     label: 'همه', icon: '🌐' },
@@ -21,9 +21,11 @@ const ENERGY_OPTIONS = [
 export default function TaskList() {
   const {
     getFilteredTasks, reorderTasks, clearCompleted,
-    energyFilter, setEnergyFilter, searchQuery, setSearchQuery,
+    energyFilter, setEnergyFilter,
+    categoryFilter, setCategoryFilter,
+    searchQuery, setSearchQuery,
   } = useTaskStore();
-  const { energyLevel } = useSettingsStore();
+  const { energyLevel, customCategories = [] } = useSettingsStore();
 
   const [showForm, setShowForm]   = useState(false);
   const [editTask, setEditTask]   = useState(null);
@@ -75,29 +77,68 @@ export default function TaskList() {
         )}
       </div>
 
-      {/* Energy filter pills */}
+      {/* Filters */}
       {showFilters && (
-        <div className="animate-fade-in" style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.8rem', color: '#64748b', alignSelf: 'center' }}>فیلتر انرژی:</span>
-          {ENERGY_OPTIONS.map((opt) => (
-            <button key={String(opt.value)} onClick={() => setEnergyFilter(opt.value)}
+        <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
+          {/* Energy filter pills */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.8rem', color: '#64748b' }}>فیلتر انرژی:</span>
+            {ENERGY_OPTIONS.map((opt) => (
+              <button key={String(opt.value)} onClick={() => setEnergyFilter(opt.value)}
+                style={{
+                  padding: '5px 14px', borderRadius: 20, border: '1.5px solid',
+                  cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.8rem', fontWeight: 600,
+                  transition: 'all 150ms',
+                  background: energyFilter === opt.value ? 'rgba(var(--accent-glow-rgb),0.2)' : 'transparent',
+                  borderColor: energyFilter === opt.value ? 'var(--color-primary-500)' : '#2f2258',
+                  color: energyFilter === opt.value ? '#a78bfa' : '#64748b',
+                }}>
+                {opt.icon} {opt.label}
+              </button>
+            ))}
+
+            {/* Quick match current energy */}
+            <button onClick={() => setEnergyFilter(energyLevel)}
+              style={{ padding: '5px 14px', borderRadius: 20, border: '1.5px solid rgba(52,211,153,0.4)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.8rem', fontWeight: 600, background: 'rgba(52,211,153,0.1)', color: '#34d399' }}>
+              ✨ مناسب انرژی من
+            </button>
+          </div>
+
+          {/* Category filter pills */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.8rem', color: '#64748b' }}>دسته‌بندی:</span>
+            <button
+              type="button"
+              onClick={() => setCategoryFilter(null)}
               style={{
                 padding: '5px 14px', borderRadius: 20, border: '1.5px solid',
                 cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.8rem', fontWeight: 600,
-                transition: 'all 150ms',
-                background: energyFilter === opt.value ? 'rgba(var(--accent-glow-rgb),0.2)' : 'transparent',
-                borderColor: energyFilter === opt.value ? 'var(--color-primary-500)' : '#2f2258',
-                color: energyFilter === opt.value ? '#a78bfa' : '#64748b',
+                background: !categoryFilter ? 'rgba(var(--accent-glow-rgb),0.2)' : 'transparent',
+                borderColor: !categoryFilter ? 'var(--color-primary-500)' : '#2f2258',
+                color: !categoryFilter ? '#a78bfa' : '#64748b',
               }}>
-              {opt.icon} {opt.label}
+              همه
             </button>
-          ))}
-
-          {/* Quick match current energy */}
-          <button onClick={() => setEnergyFilter(energyLevel)}
-            style={{ padding: '5px 14px', borderRadius: 20, border: '1.5px solid rgba(52,211,153,0.4)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.8rem', fontWeight: 600, background: 'rgba(52,211,153,0.1)', color: '#34d399' }}>
-            ✨ مناسب انرژی من
-          </button>
+            {customCategories.map((cat) => {
+              const isSelected = categoryFilter === cat.value;
+              const catColor = cat.color || 'var(--color-primary-500)';
+              return (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() => setCategoryFilter(isSelected ? null : cat.value)}
+                  style={{
+                    padding: '5px 14px', borderRadius: 20, border: '1.5px solid',
+                    cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.8rem', fontWeight: 600,
+                    background: isSelected ? `${catColor}25` : 'transparent',
+                    borderColor: isSelected ? catColor : '#2f2258',
+                    color: isSelected ? catColor : '#64748b',
+                  }}>
+                  {cat.icon} {cat.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 

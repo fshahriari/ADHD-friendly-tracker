@@ -91,8 +91,8 @@ export const eventsDb = {
 // ── ADHD Coach Rules (User Preferences / AI Memory) ─────────────────────
 export const coachRulesDb = {
   getAll: () => read(KEYS.COACH_RULES, [
-    { id: '1', rule: 'برای تکالیف دانشگاه همیشه ۲۴ ساعت و ۱ ساعت قبل ددلاین یادآوری بگذار.' },
-    { id: '2', rule: 'کلاس‌های درس را به صورت ایونت در تقویم ثبت کن.' },
+    { id: '1', rule: 'برای وظایف و کارهای مهم همیشه ۲۴ ساعت و ۱ ساعت قبل ددلاین یادآوری بگذار.' },
+    { id: '2', rule: 'جلسات و قرارهای کاری یا شخصی را به صورت ایونت در تقویم ثبت کن.' },
   ]),
 
   save: (ruleText) => {
@@ -183,29 +183,42 @@ export const connectedCalendarsDb = {
   },
 };
 
+export const DEFAULT_CATEGORIES = [
+  { value: 'assignment', label: 'کاری / پروژه', icon: '💼', color: '#f59e0b' },
+  { value: 'lecture',    label: 'جلسه / رویداد', icon: '📅', color: '#0ea5e9' },
+  { value: 'exam',       label: 'مهم / ددلاین', icon: '🎯', color: '#f43f5e' },
+  { value: 'personal',   label: 'شخصی',        icon: '⭐', color: '#6366f1' },
+  { value: 'habit',      label: 'عادت و روتین', icon: '🔄', color: '#10b981' },
+];
+
 // ── Settings ─────────────────────────────────────────────────────────────
 export const settingsDb = {
-  get: () => read(KEYS.SETTINGS, {
-    theme: 'dark',
-    accentColor: 'violet', // 'violet' | 'emerald' | 'cyan' | 'rose' | 'amber'
-    energyLevel: 'medium',
-    calendarMode: 'jalali',
-    calendarPrimary: 'jalali',
-    icalUrls: [],
-    geminiProxyUrl: 'https://api.groq.com/openai',
-    backupGeminiProxyUrl: '',
-    directGeminiApiKey: '',
-    aiProvider: 'openai',
-    openaiModel: 'llama-3.3-70b-versatile',
-    supabaseUrl: '',
-    supabaseAnonKey: '',
-    notifications: true,
-    soundEnabled: true,
-    focusDuration: 25,
-    shortBreak: 5,
-    longBreak: 15,
-    language: 'fa',
-  }),
+  get: () => {
+    const saved = read(KEYS.SETTINGS, {});
+    return {
+      theme: 'dark',
+      accentColor: 'violet', // 'violet' | 'emerald' | 'cyan' | 'rose' | 'amber'
+      energyLevel: 'medium',
+      calendarMode: 'jalali',
+      calendarPrimary: 'jalali',
+      icalUrls: [],
+      customCategories: DEFAULT_CATEGORIES,
+      geminiProxyUrl: 'https://api.groq.com/openai',
+      backupGeminiProxyUrl: '',
+      directGeminiApiKey: '',
+      aiProvider: 'openai',
+      openaiModel: 'llama-3.3-70b-versatile',
+      supabaseUrl: '',
+      supabaseAnonKey: '',
+      notifications: true,
+      soundEnabled: true,
+      focusDuration: 25,
+      shortBreak: 5,
+      longBreak: 15,
+      language: 'fa',
+      ...saved,
+    };
+  },
 
   save: (partial) => {
     const current = settingsDb.get();

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ردیاب ADHD</string>
+    <string name="title_activity_main">ردیاب ADHD</string>
+    <string name="package_name">com.adhd.tracker</string>
+    <string name="custom_url_scheme">com.adhd.tracker</string>
+</resources>

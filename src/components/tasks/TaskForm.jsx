@@ -1,14 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTaskStore } from '../../store/useTaskStore';
-import { Modal, Button, CategoryBadge } from '../shared';
+import { useSettingsStore } from '../../store/useSettingsStore';
+import { DEFAULT_CATEGORIES } from '../../lib/db';
+import { Modal, Button, CategoryBadge, CategoryManagerModal } from '../shared';
+import { Settings as SettingsIcon } from 'lucide-react';
 
-const CATEGORIES = [
-  { value: 'exam',       label: 'امتحان',   icon: '📝' },
-  { value: 'assignment', label: 'تکلیف',    icon: '📚' },
-  { value: 'habit',      label: 'عادت',     icon: '🔄' },
-  { value: 'personal',   label: 'شخصی',     icon: '⭐' },
-  { value: 'lecture',    label: 'درس',      icon: '🎓' },
-];
 const PRIORITIES = [
   { value: 'high',   label: 'بالا',   color: '#fb7185' },
   { value: 'medium', label: 'متوسط',  color: '#fbbf24' },
@@ -21,17 +17,29 @@ const ENERGIES = [
 ];
 
 const DEFAULTS = {
-  title: '', description: '', category: 'personal',
+  title: '', description: '', category: 'assignment',
   priority: 'medium', energyRequired: 'medium',
   estimatedMinutes: 25, dueDate: '',
 };
 
 export default function TaskForm({ open, onClose, initial = null }) {
   const { addTask, updateTask } = useTaskStore();
-  const [form, setForm] = useState(initial ? {
-    ...DEFAULTS, ...initial,
-    dueDate: initial.dueDate ? initial.dueDate.slice(0, 10) : '',
-  } : DEFAULTS);
+  const customCategories = useSettingsStore((s) => s.customCategories) || DEFAULT_CATEGORIES;
+  const [showCatManager, setShowCatManager] = useState(false);
+  const [form, setForm] = useState(DEFAULTS);
+
+  useEffect(() => {
+    if (open) {
+      setForm(initial ? {
+        ...DEFAULTS,
+        ...initial,
+        dueDate: initial.dueDate ? initial.dueDate.slice(0, 10) : '',
+      } : {
+        ...DEFAULTS,
+        category: customCategories[0]?.value || 'assignment',
+      });
+    }
+  }, [open, initial, customCategories]);
 
   const set = (key, val) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -56,7 +64,7 @@ export default function TaskForm({ open, onClose, initial = null }) {
         <div>
           <label style={labelStyle}>عنوان وظیفه *</label>
           <input
-            className="input" placeholder="مثال: مطالعه فصل سوم..."
+            className="input" placeholder="مثال: تهیه پیش‌نویس گزارش یا پیگیری پروژه..."
             value={form.title} onChange={(e) => set('title', e.target.value)}
             autoFocus required
           />
@@ -71,23 +79,59 @@ export default function TaskForm({ open, onClose, initial = null }) {
 
         {/* Category */}
         <div>
-          <label style={labelStyle}>دسته‌بندی</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {CATEGORIES.map((c) => (
-              <button key={c.value} type="button"
-                onClick={() => set('category', c.value)}
-                style={{
-                  padding: '6px 14px', borderRadius: 20, border: '1.5px solid',
-                  cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.82rem', fontWeight: 600,
-                  transition: 'all 150ms',
-                  background: form.category === c.value ? 'rgba(var(--accent-glow-rgb),0.2)' : 'transparent',
-                  borderColor: form.category === c.value ? 'var(--color-primary-500)' : '#2f2258',
-                  color: form.category === c.value ? '#a78bfa' : '#64748b',
-                }}>
-                {c.icon} {c.label}
-              </button>
-            ))}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <label style={labelStyle}>دسته‌بندی</label>
+            <button
+              type="button"
+              onClick={() => setShowCatManager(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                background: 'none',
+                border: 'none',
+                color: 'var(--color-primary-400)',
+                fontSize: '0.78rem',
+                cursor: 'pointer',
+                fontWeight: 600,
+                padding: '2px 6px',
+              }}
+            >
+              <SettingsIcon size={12} /> ویرایش دسته‌بندی‌ها
+            </button>
           </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {customCategories.map((c) => {
+              const isSelected = form.category === c.value;
+              const catColor = c.color || 'var(--color-primary-500)';
+              return (
+                <button
+                  key={c.value}
+                  type="button"
+                  onClick={() => set('category', c.value)}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: 20,
+                    border: `1.5px solid ${isSelected ? catColor : 'rgba(100,116,139,0.25)'}`,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    fontSize: '0.82rem',
+                    fontWeight: isSelected ? 700 : 500,
+                    transition: 'all 150ms',
+                    background: isSelected ? `${catColor}25` : 'transparent',
+                    color: isSelected ? catColor : 'var(--text-secondary)',
+                  }}
+                >
+                  {c.icon} {c.label}
+                </button>
+              );
+            })}
+          </div>
+          <CategoryManagerModal
+            open={showCatManager}
+            onClose={() => setShowCatManager(false)}
+            onCategoryAdded={(newVal) => set('category', newVal)}
+          />
         </div>
 
         {/* Priority + Energy row */}

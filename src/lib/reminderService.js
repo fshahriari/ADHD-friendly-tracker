@@ -48,7 +48,7 @@ class ReminderService {
           if (!this.notifiedSet.has(key)) {
             this.notifiedSet.add(key);
             const label = offset === 0 ? 'هم‌اکنون ددلاین است!' : `${this.formatOffset(offset)} دیگر`;
-            this.sendNotification(`⏰ یادآوری تکلیف: ${task.title}`, {
+            this.sendNotification(`⏰ یادآوری وظیفه: ${task.title}`, {
               body: `ددلاین: ${label}`,
               icon: '/icons/icon-192.png',
             }, settings);

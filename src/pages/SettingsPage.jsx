@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useEventStore } from '../store/useEventStore';
 
-import { Button, toast } from '../components/shared';
+import { Button, toast, CategoryManager } from '../components/shared';
 import { timerLogDb, taskDb, eventsDb, coachRulesDb, settingsDb, icalDb } from '../lib/db';
 import { callGemini, discoverActiveModels, pickBestChatModel } from '../lib/gemini';
 import { Save, Moon, Sun, Palette, Server, Shield, Brain, Plus, Trash2, CheckCircle2, Download, Upload, Globe, RefreshCw } from 'lucide-react';
@@ -271,9 +271,14 @@ export default function SettingsPage() {
         </Row>
       </Section>
 
-      {/* Connected External Calendars (Google & Apple) */}
-      <Section title="تقویم‌های متصل (Google Calendar & Apple)" icon="🌐">
-        <Row label="همگام‌سازی تقویم‌های ابری" desc="اتصال تقویم گوگل یا اپل جهت نمایش خودکار رویدادها، کلاس‌ها و جلسات در ردیاب">
+      {/* Category Manager */}
+      <Section title="مدیریت و شخصی‌سازی دسته‌بندی‌ها" icon="🏷️">
+        <CategoryManager />
+      </Section>
+
+      {/* Connected External Calendars (Google, Apple, Samsung) */}
+      <Section title="تقویم‌های متصل (Google, Apple, Samsung)" icon="🌐">
+        <Row label="همگام‌سازی تقویم‌های ابری" desc="اتصال تقویم گوگل، اپل یا سامسونگ جهت نمایش خودکار جلسات، قرارها و رویدادها در ردیاب">
           <Button variant="ghost" size="sm" onClick={() => setShowConnectModal(true)} style={{ color: 'var(--color-primary-400)', borderColor: 'rgba(var(--accent-glow-rgb),0.3)' }}>
             <Globe size={15} /> مدیریت و اتصال تقویم
           </Button>
@@ -297,7 +302,7 @@ export default function SettingsPage() {
         </div>
 
         <form onSubmit={handleAddRule} style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-          <input className="input" placeholder="مثال: یادآوری امتحانات همیشه ۳ روز قبل تنظیم بشه..."
+          <input className="input" placeholder="مثال: یادآوری کارهای مهم کاری همیشه ۲ روز قبل تنظیم بشه..."
             value={newRuleText} onChange={(e) => setNewRuleText(e.target.value)} />
           <Button variant="secondary" size="sm" type="submit">
             <Plus size={14} /> افزودن

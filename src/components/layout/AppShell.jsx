@@ -3,6 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Brain, Focus, Calendar, Settings, Timer, Menu, X } from 'lucide-react';
 import { useTimerStore, TIMER_STATES } from '../../store/useTimerStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { hapticSelection } from '../../lib/capacitor';
 
 const NAV_ITEMS = [
   { to: '/',           icon: LayoutDashboard, label: 'داشبورد' },
@@ -41,6 +42,7 @@ function BottomNav({ onMenuOpen }) {
     <nav className="bottom-nav" role="navigation" aria-label="منوی اصلی">
       {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
         <NavLink key={to} to={to} end={to === '/'}
+          onClick={() => hapticSelection()}
           className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
           {to === '/focus' && isActive ? (
             <>

@@ -1,20 +1,59 @@
 import React from 'react';
+import { useSettingsStore } from '../../store/useSettingsStore';
+import { DEFAULT_CATEGORIES } from '../../lib/db';
+export { CategoryManager, CategoryManagerModal } from './CategoryManager';
 
-const CATEGORY_LABELS = {
-  exam: 'امتحان', assignment: 'تکلیف', habit: 'عادت',
-  personal: 'شخصی', lecture: 'درس',
+export const CATEGORY_LABELS = {
+  assignment: 'کاری / پروژه',
+  work: 'کاری / پروژه',
+  project: 'کاری / پروژه',
+  personal: 'شخصی',
+  exam: 'مهم / ددلاین',
+  deadline: 'مهم / ددلاین',
+  lecture: 'جلسه / رویداد',
+  meeting: 'جلسه / رویداد',
+  habit: 'عادت و روتین',
 };
-const CATEGORY_ICONS = {
-  exam: '📝', assignment: '📚', habit: '🔄', personal: '⭐', lecture: '🎓',
+
+export const CATEGORY_ICONS = {
+  assignment: '💼',
+  work: '💼',
+  project: '💼',
+  personal: '⭐',
+  exam: '🎯',
+  deadline: '🎯',
+  lecture: '📅',
+  meeting: '📅',
+  habit: '🔄',
 };
-const PRIORITY_LABELS = { high: 'بالا', medium: 'متوسط', low: 'پایین' };
-const ENERGY_LABELS   = { high: 'بالا', medium: 'متوسط', low: 'پایین' };
+
+export const TASK_CATEGORIES = DEFAULT_CATEGORIES;
+
+export const PRIORITY_LABELS = { high: 'بالا', medium: 'متوسط', low: 'پایین' };
+export const ENERGY_LABELS   = { high: 'بالا', medium: 'متوسط', low: 'پایین' };
 
 // ── Category Badge ─────────────────────────────────────────────────────────
-export function CategoryBadge({ category }) {
+export function CategoryBadge({ category, onClick, style = {} }) {
+  const customCategories = useSettingsStore((s) => s.customCategories) || DEFAULT_CATEGORIES;
+  const normCat = category || 'personal';
+  const found = customCategories.find((c) => c.value === normCat);
+
+  const icon = found?.icon || CATEGORY_ICONS[normCat] || '📌';
+  const label = found?.label || CATEGORY_LABELS[normCat] || normCat;
+  const color = found?.color;
+
   return (
-    <span className={`cat-badge cat-${category}`}>
-      {CATEGORY_ICONS[category]} {CATEGORY_LABELS[category] || category}
+    <span
+      className={`cat-badge cat-${normCat}`}
+      onClick={onClick}
+      style={{
+        cursor: onClick ? 'pointer' : 'default',
+        userSelect: 'none',
+        ...(color ? { '--cat-color': color } : {}),
+        ...style,
+      }}
+    >
+      {icon} {label}
     </span>
   );
 }

@@ -12,6 +12,7 @@ import { useTaskStore } from './store/useTaskStore';
 import { useEventStore } from './store/useEventStore';
 import { reminderService } from './lib/reminderService';
 import { calendarSyncService } from './lib/calendarSyncService';
+import { initCapacitor, isNative, setStatusBarStyle } from './lib/capacitor';
 
 function BrainDumpPage() {
   return <div className="page"><BrainDump /></div>;
@@ -35,6 +36,16 @@ export default function App() {
   useEffect(() => {
     init();
   }, [init]);
+
+  // Initialize Capacitor native platform (Android)
+  useEffect(() => {
+    initCapacitor().then(() => {
+      if (isNative()) {
+        // Dynamically load liquid-glass CSS only on native/mobile
+        import('./mobile-glass.css');
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (!user) return; // Don't load data if not logged in
@@ -83,6 +94,10 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme || 'dark');
     document.documentElement.setAttribute('data-accent', accentColor || 'violet');
+    // Sync native status bar style with theme
+    if (isNative()) {
+      setStatusBarStyle(theme === 'light' ? 'DARK' : 'LIGHT');
+    }
   }, [theme, accentColor]);
 
   return (

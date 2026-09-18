@@ -4,6 +4,7 @@ import { useTimerStore, TIMER_STATES } from '../../store/useTimerStore';
 import { useTaskStore } from '../../store/useTaskStore';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
+import { keepScreenAwake, releaseScreenAwake, hapticNotification, hapticImpact } from '../../lib/capacitor';
 
 import { useSettingsStore } from '../../store/useSettingsStore';
 
@@ -106,10 +107,21 @@ export default function FocusMode() {
 
   const task = focusTaskId ? tasks.find((t) => t.id === focusTaskId) : getHighestPriorityTask();
 
-  // Fire confetti on DONE
+  // Keep screen awake during focus sessions
+  useEffect(() => {
+    if (state === TIMER_STATES.RUNNING) {
+      keepScreenAwake();
+    } else {
+      releaseScreenAwake();
+    }
+    return () => releaseScreenAwake();
+  }, [state]);
+
+  // Fire confetti + haptic on DONE
   useEffect(() => {
     if (state === TIMER_STATES.DONE && !didFireConfetti.current) {
       didFireConfetti.current = true;
+      hapticNotification('SUCCESS');
       confetti({
         particleCount: 120, spread: 80, origin: { y: 0.6 },
         colors: ['var(--color-primary-500)', '#34d399', '#fbbf24', '#fb7185', '#6366f1'],
@@ -121,14 +133,17 @@ export default function FocusMode() {
   }, [state]);
 
   const handleStart = () => {
-    if (task) startFocus(task.id, task.estimatedMinutes || 25);
+    if (task) {
+      hapticImpact('Medium');
+      startFocus(task.id, task.estimatedMinutes || 25);
+    }
   };
 
   const handleMarkDone = () => {
     if (task) { toggleComplete(task.id); stop(); }
   };
 
-  const CAT_LABELS = { exam: 'امتحان', assignment: 'تکلیف', habit: 'عادت', personal: 'شخصی', lecture: 'درس' };
+  const CAT_LABELS = { exam: 'مهم / ددلاین', assignment: 'کاری / پروژه', habit: 'عادت', personal: 'شخصی', lecture: 'جلسه / رویداد' };
   const DURATION_OPTIONS = [5, 10, 15, 25, 30, 45, 50];
 
   return (

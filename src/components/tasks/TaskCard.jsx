@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Pencil, Trash2, Play, ChevronDown, ChevronUp, CheckCircle2, Circle, GripVertical, Zap } from 'lucide-react';
+import { Pencil, Trash2, Play, ChevronDown, ChevronUp, CheckCircle2, Circle, GripVertical, Zap, Clock, Check } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useTaskStore } from '../../store/useTaskStore';
 import { useTimerStore } from '../../store/useTimerStore';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import { CategoryBadge, PriorityDot } from '../shared';
 import { decomposeTask } from '../../lib/gemini';
 import { toast } from '../shared';
@@ -25,6 +26,7 @@ export default function TaskCard({ task, onEdit }) {
   const { startFocus } = useTimerStore();
   const [expanded, setExpanded] = useState(false);
   const [decomposing, setDecomposing] = useState(false);
+  const isDark = useSettingsStore((s) => s.theme) === 'dark';
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: task.id });
@@ -104,12 +106,12 @@ export default function TaskCard({ task, onEdit }) {
           {/* Steps preview */}
           {task.steps && task.steps.length > 0 && (
             <div style={{ marginTop: 6 }}>
-              <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: 4 }}>
+              <div style={{ fontSize: '0.75rem', color: isDark ? '#94a3b8' : '#64748b', marginBottom: 4 }}>
                 {task.steps.filter((s) => s.done).length}/{task.steps.length} گام تکمیل شده
               </div>
-              <div style={{ height: 4, background: '#1a1130', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ height: 5, background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)', borderRadius: 4, overflow: 'hidden' }}>
                 <div style={{
-                  height: '100%', borderRadius: 4, background: 'linear-gradient(90deg, #6d28d9, #34d399)',
+                  height: '100%', borderRadius: 4, background: 'linear-gradient(90deg, #8b5cf6, #10b981)',
                   width: `${(task.steps.filter((s) => s.done).length / task.steps.length) * 100}%`,
                   transition: 'width 400ms ease',
                 }} />
@@ -140,10 +142,21 @@ export default function TaskCard({ task, onEdit }) {
 
       {/* Expandable steps / AI decompose */}
       {!task.completed && (
-        <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #1a1130', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{
+          marginTop: 10, paddingTop: 10,
+          borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(var(--accent-glow-rgb), 0.12)'}`,
+          display: 'flex', gap: 8, flexWrap: 'wrap'
+        }}>
           {task.steps && task.steps.length > 0 ? (
             <button onClick={() => setExpanded(!expanded)}
-              className="btn btn-ghost btn-sm" style={{ fontSize: '0.78rem' }}>
+              className="btn btn-ghost btn-sm"
+              style={{
+                fontSize: '0.78rem',
+                color: isDark ? '#c4b5fd' : '#6d28d9',
+                borderColor: isDark ? 'rgba(var(--accent-glow-rgb), 0.25)' : 'rgba(var(--accent-glow-rgb), 0.3)',
+                background: isDark ? 'rgba(var(--accent-glow-rgb), 0.08)' : 'rgba(var(--accent-glow-rgb), 0.05)',
+                fontWeight: 600,
+              }}>
               {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               {expanded ? 'بستن گام‌ها' : `نمایش ${task.steps.length} گام`}
             </button>
@@ -158,33 +171,108 @@ export default function TaskCard({ task, onEdit }) {
 
       {/* Steps list */}
       {expanded && task.steps && task.steps.length > 0 && (
-        <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }} className="animate-fade-in">
-          {task.steps.map((step, idx) => (
-            <div key={idx} onClick={() => {
-              const steps = task.steps.map((s, i) => i === idx ? { ...s, done: !s.done } : s);
-              updateTask(task.id, { steps });
-            }}
-              style={{
-                display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 10px',
-                background: 'rgba(15,10,30,0.5)', borderRadius: 8, cursor: 'pointer',
-                border: `1px solid ${step.done ? 'rgba(52,211,153,0.2)' : '#1a1130'}`,
-                opacity: step.done ? 0.6 : 1, transition: 'all 150ms',
-              }}>
-              <span style={{ fontSize: '0.8rem', color: step.done ? '#34d399' : '#475569', flexShrink: 0 }}>
-                {step.done ? '✅' : `${idx + 1}.`}
-              </span>
-              <div style={{ flex: 1 }}>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)', textDecoration: step.done ? 'line-through' : 'none' }}>
-                  {step.title}
-                </span>
-                {step.estimatedMinutes && (
-                  <span style={{ fontSize: '0.72rem', color: '#64748b', marginRight: 8 }}>
-                    🕐 {step.estimatedMinutes} دقیقه
+        <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 7 }} className="animate-fade-in">
+          {task.steps.map((step, idx) => {
+            const isDone = Boolean(step.done);
+            return (
+              <div
+                key={idx}
+                onClick={() => {
+                  const steps = task.steps.map((s, i) => i === idx ? { ...s, done: !s.done } : s);
+                  updateTask(task.id, { steps });
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '9px 12px',
+                  borderRadius: 10,
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  background: isDone
+                    ? (isDark ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.08)')
+                    : (isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(var(--accent-glow-rgb), 0.04)'),
+                  border: `1px solid ${
+                    isDone
+                      ? (isDark ? 'rgba(52, 211, 153, 0.3)' : 'rgba(16, 185, 129, 0.35)')
+                      : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(var(--accent-glow-rgb), 0.15)')
+                  }`,
+                  boxShadow: isDone
+                    ? 'none'
+                    : (isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.02)'),
+                  transition: 'all 180ms ease',
+                }}
+              >
+                {/* Step number badge / Check icon */}
+                <div
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: '50%',
+                    flexShrink: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.75rem',
+                    fontWeight: 800,
+                    background: isDone
+                      ? '#10b981'
+                      : (isDark ? 'rgba(var(--accent-glow-rgb), 0.2)' : 'rgba(var(--accent-glow-rgb), 0.12)'),
+                    color: isDone
+                      ? '#ffffff'
+                      : (isDark ? '#c4b5fd' : '#6d28d9'),
+                    border: isDone
+                      ? 'none'
+                      : `1px solid ${isDark ? 'rgba(var(--accent-glow-rgb), 0.3)' : 'rgba(var(--accent-glow-rgb), 0.25)'}`,
+                    transition: 'all 180ms ease',
+                  }}
+                >
+                  {isDone ? <Check size={14} strokeWidth={3} /> : idx + 1}
+                </div>
+
+                {/* Step content */}
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                  <span
+                    style={{
+                      fontSize: '0.86rem',
+                      fontWeight: isDone ? 500 : 600,
+                      color: isDone
+                        ? (isDark ? '#64748b' : '#94a3b8')
+                        : (isDark ? '#f8fafc' : '#1e1b4b'),
+                      textDecoration: isDone ? 'line-through' : 'none',
+                      lineHeight: 1.5,
+                      transition: 'all 150ms ease',
+                    }}
+                  >
+                    {step.title}
                   </span>
-                )}
+
+                  {step.estimatedMinutes && (
+                    <span
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        fontSize: '0.72rem',
+                        fontWeight: 600,
+                        color: isDone
+                          ? (isDark ? '#64748b' : '#94a3b8')
+                          : (isDark ? '#94a3b8' : '#475569'),
+                        background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+                        padding: '2px 8px',
+                        borderRadius: 12,
+                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'}`,
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Clock size={11} />
+                      <span>{step.estimatedMinutes} دقیقه</span>
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
