@@ -257,10 +257,10 @@ export function CategoryManager({ onCategoryAdded }) {
                 }}
               />
 
-              {/* Live Preview Badge */}
+              {/* Live Preview Badge (visible on tablets/desktop) */}
               <span
+                className="hidden sm:inline-flex"
                 style={{
-                  display: 'inline-flex',
                   alignItems: 'center',
                   gap: 4,
                   padding: '3px 10px',
@@ -392,42 +392,45 @@ export function CategoryManager({ onCategoryAdded }) {
             style={{ flex: 1, minWidth: 150, height: 36, fontSize: '0.85rem' }}
           />
 
-          {/* Color choices */}
-          <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
-            {PRESET_COLORS.slice(0, 6).map((c) => (
-              <button
-                key={c.hex}
-                type="button"
-                title={c.name}
-                onClick={() => setNewColor(c.hex)}
-                style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: '50%',
-                  background: c.hex,
-                  border: newColor === c.hex ? '2.5px solid white' : '1px solid transparent',
-                  cursor: 'pointer',
-                  padding: 0,
-                  boxShadow: newColor === c.hex ? `0 0 6px ${c.hex}` : 'none',
-                }}
-              />
-            ))}
-          </div>
+          {/* Color choices & submit button container */}
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'space-between', flex: '1 1 auto', minWidth: 220 }}>
+            {/* Color choices */}
+            <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+              {PRESET_COLORS.slice(0, 6).map((c) => (
+                <button
+                  key={c.hex}
+                  type="button"
+                  title={c.name}
+                  onClick={() => setNewColor(c.hex)}
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: '50%',
+                    background: c.hex,
+                    border: newColor === c.hex ? '2.5px solid white' : '1px solid transparent',
+                    cursor: 'pointer',
+                    padding: 0,
+                    boxShadow: newColor === c.hex ? `0 0 6px ${c.hex}` : 'none',
+                  }}
+                />
+              ))}
+            </div>
 
-          <button
-            type="submit"
-            className="btn btn-primary"
-            style={{
-              padding: '7px 16px',
-              fontSize: '0.82rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              height: 36,
-            }}
-          >
-            <Plus size={15} /> افزودن
-          </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              style={{
+                padding: '7px 16px',
+                fontSize: '0.82rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                height: 36,
+              }}
+            >
+              <Plus size={15} /> افزودن
+            </button>
+          </div>
         </div>
       </form>
 
